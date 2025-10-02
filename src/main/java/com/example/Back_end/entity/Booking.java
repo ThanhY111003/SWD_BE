@@ -38,10 +38,6 @@ public class Booking {
     @JoinColumn(name = "lab_id", nullable = false)
     private Lab lab;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "slot_id", nullable = false)
-    private LabSlot slot;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BookingStatus status; // Pending, Approved, Rejected, Completed

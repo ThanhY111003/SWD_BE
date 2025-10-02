@@ -24,7 +24,7 @@ public class UserService {
     }
 
     public List<User> searchUsers(String keyword) {
-        return userRepository.findByUsernameContainingIgnoreCase(keyword);
+        return userRepository.findByUserNameContainingIgnoreCase(keyword);
     }
 
     public List<User> sortUsersByNameAsc() {

@@ -8,7 +8,6 @@ import java.util.List;
 
 public interface SlotRepository extends JpaRepository<Slot, Integer> {
 
-    List<Slot> findByLabLabId(Integer labId);
 
     List<Slot> findByStartTimeBetween(LocalDateTime start, LocalDateTime end);
 }
