@@ -1,6 +1,6 @@
 package com.example.Back_end.entity;
 
-import com.example.Back_end.entity.entity_enum.UserStatus;
+import com.example.Back_end.entity.entity_enum.BookingStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,41 +19,34 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
+@Table(name = "booking")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private Integer userId;
+    @Column(name = "booking_id")
+    private Integer bookingId;
 
-    @Column(name = "user_name", nullable = false, unique = true, length = 100)
-    private String userName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @Column(nullable = false)
-    private String password;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lab_id", nullable = false)
+    private Lab lab;
 
-    @Column(unique = true, length = 150)
-    private String email;
-
-    @Column(name = "phone_number", length = 15)
-    private String phoneNumber;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "slot_id", nullable = false)
+    private LabSlot slot;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserStatus status; // import từ enums.UserStatus
+    private BookingStatus status; // Pending, Approved, Rejected, Completed
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    // Quan hệ với Role (chuẩn ERD: User N-1 Role)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id", nullable = false)
-    private Role role;
 }
