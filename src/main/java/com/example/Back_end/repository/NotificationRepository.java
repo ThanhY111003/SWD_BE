@@ -1,8 +1,8 @@
 package com.example.Back_end.repository;
 
 import com.example.Back_end.entity.Notification;
+import com.example.Back_end.entity.NotificationType;
 import com.example.Back_end.entity.entity_enum.NotificationStatus;
-import com.example.Back_end.entity.entity_enum.NotificationType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -13,5 +13,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
 
     List<Notification> findByStatus(NotificationStatus status);
 
-    List<Notification> findByType(NotificationType type);
+    List<Notification> findByNotificationType(NotificationType notificationType);
+
 }

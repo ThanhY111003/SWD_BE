@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -35,8 +36,9 @@ public class Lab {
     @OneToMany(mappedBy = "lab", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Booking> bookings;
 
-    @ManyToMany(mappedBy = "labs")
-    private List<Slot> slots;
+    @OneToMany(mappedBy = "lab", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LabSchedule> labSchedules = new ArrayList<>();
+
 
 
 }

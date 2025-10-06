@@ -27,12 +27,8 @@ public class Slot {
     @Column(name = "end_time", nullable = false)
     private LocalDateTime endTime;
 
-    @ManyToMany
-    @JoinTable(
-            name = "lab_slot",
-            joinColumns = @JoinColumn(name = "slot_id"),
-            inverseJoinColumns = @JoinColumn(name = "lab_id")
-    )
-    private List<Lab> labs;
+    @ManyToOne
+    @JoinColumn(name = "schedule_id")
+    private Schedule schedule;
 
 }
