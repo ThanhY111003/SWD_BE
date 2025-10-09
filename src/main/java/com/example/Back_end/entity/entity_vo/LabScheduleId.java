@@ -1,4 +1,4 @@
-package com.example.Back_end.entity;
+package com.example.Back_end.entity.entity_vo;
 
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;

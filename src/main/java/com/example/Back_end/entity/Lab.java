@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "lab")
@@ -36,9 +37,17 @@ public class Lab {
     @OneToMany(mappedBy = "lab", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Booking> bookings;
 
-    @OneToMany(mappedBy = "lab", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<LabSchedule> labSchedules = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(
+            name = "lab_schedule", // Bảng trung gian
+            joinColumns = @JoinColumn(name = "lab_id"),
+            inverseJoinColumns = @JoinColumn(name = "schedule_id")
+    )
+    private List<Schedule> schedules;
 
 
+    // Một Lab được quản lý bởi nhiều User
+    @ManyToMany(mappedBy = "managedLabs")
+    private Set<User> managers;
 
 }

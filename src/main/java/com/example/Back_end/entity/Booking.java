@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "booking")
@@ -20,9 +21,17 @@ public class Booking {
     @Column(name = "booking_id")
     private Integer bookingId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    // Người đặt booking
+    @ManyToOne
+    @JoinColumn(name = "booked_by", nullable = false)
+    private User bookedBy;
+
+
+    // Người duyệt booking
+    @ManyToOne
+    @JoinColumn(name = "approved_by")
+    private User approvedBy;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lab_id", nullable = false)
@@ -40,5 +49,8 @@ public class Booking {
 
     @OneToOne(mappedBy = "booking", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Feedback feedback;
+
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    private List<Request> requests;
 
 }

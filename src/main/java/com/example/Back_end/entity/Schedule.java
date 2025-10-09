@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,10 +26,14 @@ public class Schedule {
     @Enumerated(EnumType.STRING)
     private ActiveDays activeDays; // Monday–Sunday
 
+    private LocalDate effectiveFrom;
+
+    private LocalDate effectiveTo; // nullable
+
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Slot> slots = new ArrayList<>();
 
-    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<LabSchedule> labSchedules = new ArrayList<>();
+    @ManyToMany(mappedBy = "schedules")
+    private List<Lab> labs;
 
 }

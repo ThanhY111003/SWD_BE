@@ -8,7 +8,11 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
-    List<Booking> findByUserUserId(Integer userId);
+    // 🔹 Lấy tất cả booking do user đặt
+    List<Booking> findByBookedByUserId(Integer userId);
+
+    // 🔹 Lấy tất cả booking do user duyệt
+    List<Booking> findByApprovedByUserId(Integer userId);
 
     List<Booking> findByLabLabId(Integer labId);
 

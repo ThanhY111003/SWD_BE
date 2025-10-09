@@ -31,4 +31,7 @@ public class Slot {
     @JoinColumn(name = "schedule_id")
     private Schedule schedule;
 
+    @OneToMany(mappedBy = "slot", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Request> requests;
+
 }
