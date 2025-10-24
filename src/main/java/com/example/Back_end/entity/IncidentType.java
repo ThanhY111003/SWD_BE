@@ -6,17 +6,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "slots")
+@Table(name = "incident_types")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Slot {
+public class IncidentType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long slotId;
-    private String slotName;
-    private java.time.LocalTime startTime;
-    private java.time.LocalTime endTime;
-    private String dayOfWeek;
+    private Long incidentTypeId;
+    private String typeName;
+    private String description;
+    private String priorityLevel;
 }
-

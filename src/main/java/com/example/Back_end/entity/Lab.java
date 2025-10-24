@@ -1,53 +1,39 @@
 package com.example.Back_end.entity;
 
-import com.example.Back_end.entity.entity_enum.LabStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Entity
-@Table(name = "lab")
+@Table(name = "labs")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Lab {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long labId;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "lab_id")
-    private Integer labId;
-
-    @Column(name = "lab_name", nullable = false, unique = true)
     private String labName;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private LabStatus status; // Available, InUse, Maintenance
-
-    @Column(columnDefinition = "NVARCHAR(MAX)")
-    private String description;
-
+    private String labCode;
     private String location;
+    private String description;
+    private Integer capacity;
+    private String status;
 
-    @OneToMany(mappedBy = "lab", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Booking> bookings;
+    // Một Lab có nhiều Room
+    @OneToMany(mappedBy = "lab", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Room> rooms;
 
     @ManyToMany
     @JoinTable(
-            name = "lab_schedule", // Bảng trung gian
+            name = "lab_room_slot",
             joinColumns = @JoinColumn(name = "lab_id"),
-            inverseJoinColumns = @JoinColumn(name = "schedule_id")
+            inverseJoinColumns = @JoinColumn(name = "room_slot_id")
     )
-    private List<Schedule> schedules;
+    private List<RoomSlot> roomSlots;
 
-
-    // Một Lab được quản lý bởi nhiều User
-    @ManyToMany(mappedBy = "managedLabs")
-    private Set<User> managers;
 
 }
