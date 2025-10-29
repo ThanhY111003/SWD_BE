@@ -31,3 +31,12 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### 🔒 Sensitive files ###
+# Ignore Google Cloud credentials or other secrets
+src/main/resources/serviceAccountKey.json
+*.pem
+*.key
+*.crt
+*.p12
+*.env
