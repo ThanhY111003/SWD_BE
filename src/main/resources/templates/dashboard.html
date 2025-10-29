@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>MAINFRAME ADMIN v3.1</title>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --crt-green: #00ff00;
+      --glow: #00ff41;
+      --dark: #000;
+      --log-bg: #001100;
+      --warn: #ffaa00;
+      --success: #55ff55;
+      --error: #ff5555;
+      --border: #00cc00;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; overflow:hidden; }
+    body {
+      background:var(--dark); color:var(--crt-green); font-family:'VT323',monospace;
+      font-size:20px; min-height:100vh; overflow:hidden; position:relative; padding:20px;
+    }
+    body::before {
+      content:''; position:fixed; top:0; left:0; right:0; bottom:0;
+      background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px);
+      pointer-events:none; z-index:10; animation:flicker 3s infinite;
+    }
+    @keyframes flicker { 0%,100%{opacity:1} 50%{opacity:0.97} }
+    .glow { text-shadow:0 0 5px var(--glow),0 0 10px var(--glow); }
+
+    /* CONTAINER CỐ ĐỊNH */
+    .container {
+      max-width:1400px; margin:0 auto; height:calc(100vh - 40px);
+      display:grid;
+      grid-template-rows: auto 1fr auto;
+      grid-template-columns:1fr 1.6fr 1fr;
+      gap:18px;
+      position:relative; z-index:2;
+    }
+
+    /* HEADER */
+    .header {
+      grid-column:1/4; background:var(--dark); border:8px double var(--crt-green);
+      padding:15px; text-align:center; font-size:32px; letter-spacing:8px;
+      box-shadow:0 0 30px rgba(0,255,0,0.5); position:relative;
+    }
+    .header::before, .header::after {
+      content:''; position:absolute; width:20px; height:100%; background:var(--crt-green);
+      top:0; box-shadow:0 0 10px var(--glow);
+    }
+    .header::before { left:-10px; }
+    .header::after { right:-10px; }
+
+    /* USER CARD - CỐ ĐỊNH */
+    .user-card {
+      background:var(--dark); border:8px double var(--crt-green);
+      padding:25px; display:flex; flex-direction:column; align-items:center;
+      box-shadow:0 0 25px rgba(0,255,0,0.4); position:relative;
+      overflow:hidden;
+    }
+    .panel-title {
+      position:absolute; top:-14px; left:50%; transform:translateX(-50%);
+      background:var(--dark); padding:0 15px; font-size:18px; letter-spacing:3px;
+      color:#00cc00;
+    }
+    .avatar {
+      width:100px; height:100px; border:5px solid var(--crt-green); border-radius:50%;
+      object-fit:cover; box-shadow:0 0 25px var(--glow); margin-bottom:15px;
+    }
+    .user-name { font-size:26px; margin:8px 0; color:#00ff88; }
+    .user-email { font-size:18px; opacity:0.8; }
+    .admin-badge {
+      background:#ff0000; color:#fff; padding:4px 12px; font-size:14px;
+      position:absolute; top:15px; right:15px; letter-spacing:2px;
+      box-shadow:0 0 15px #ff0000; animation:pulse-red 2s infinite;
+    }
+    @keyframes pulse-red { 0%,100%{box-shadow:0 0 15px #ff0000} 50%{box-shadow:0 0 25px #ff5555} }
+
+    /* USER LIST - SCROLL RIÊNG */
+    .user-list {
+      background:var(--dark); border:8px double var(--crt-green);
+      padding:20px; display:flex; flex-direction:column;
+      box-shadow:0 0 25px rgba(0,255,0,0.4); position:relative;
+      overflow:hidden;
+    }
+    .user-list-header { margin-bottom:10px; display:flex; flex-direction:column; gap:8px; }
+    .refresh-btn, .create-btn {
+      width:100%; padding:12px; background:transparent;
+      border:2px solid var(--border); color:var(--crt-green); cursor:pointer;
+      font-size:18px; letter-spacing:2px; transition:0.3s;
+    }
+    .refresh-btn:hover, .create-btn:hover {
+      background:var(--crt-green); color:#000;
+    }
+    .user-list-content {
+      flex:1; overflow-y:auto; padding-right:8px;
+    }
+    .user-list-content::-webkit-scrollbar { width:10px; }
+    .user-list-content::-webkit-scrollbar-track { background:#000; border:1px solid #003300; }
+    .user-list-content::-webkit-scrollbar-thumb {
+      background:#004400; border:2px solid var(--crt-green); border-radius:2px;
+    }
+    .user-item {
+      background:rgba(0,50,0,0.5); border:1px solid var(--border); padding:12px;
+      margin:8px 0; border-radius:4px; position:relative; transition:0.3s;
+    }
+    .user-item:hover { background:rgba(0,100,0,0.7); transform:translateX(5px); }
+    .user-id { font-size:16px; color:#00ff88; }
+    .user-username { font-size:20px; }
+    .user-role { font-size:14px; color:var(--warn); }
+    .actions { display:flex; gap:6px; margin-top:8px; }
+    .btn-small {
+      font-size:14px; padding:6px 10px; background:transparent; border:1px solid;
+      cursor:pointer; transition:0.3s; flex:1; text-align:center;
+    }
+    .btn-edit { border-color:#00ffff; color:#00ffff; }
+    .btn-edit:hover { background:#00ffff; color:#000; }
+    .btn-delete { border-color:#ff5555; color:#ff5555; }
+    .btn-delete:hover { background:#ff5555; color:#000; }
+    .btn-toggle-admin { border-color:#ffaa00; color:#ffaa00; }
+    .btn-toggle-admin:hover { background:#ffaa00; color:#000; }
+    .btn-toggle-admin.admin { border-color:#00ff00; color:#00ff00; }
+    .btn-toggle-admin.admin:hover { background:#00ff00; color:#000; }
+    .btn-profile { border-color:#00aaff; color:#00aaff; }
+    .btn-profile:hover { background:#00aaff; color:#000; }
+
+    /* LOG PANEL - SCROLL RIÊNG */
+    .log-panel {
+      background:var(--log-bg); border:8px double var(--crt-green);
+      padding:20px; display:flex; flex-direction:column;
+      box-shadow:0 0 25px rgba(0,255,0,0.3), inset 0 0 30px rgba(0,50,0,0.7);
+      position:relative; overflow:hidden;
+    }
+    .log-content {
+      flex:1; overflow-y:auto; padding-right:8px; font-size:18px; line-height:1.5;
+      word-break:break-all; margin-top:10px;
+    }
+    .log-content::-webkit-scrollbar { width:10px; }
+    .log-content::-webkit-scrollbar-track { background:#000; border:1px solid #003300; }
+    .log-content::-webkit-scrollbar-thumb {
+      background:#004400; border:2px solid var(--crt-green); border-radius:2px;
+    }
+    .log-line { margin:4px 0; opacity:0; animation:fadeIn 0.3s forwards; }
+    .log-line.error { color:var(--error); }
+    .log-line.success { color:var(--success); }
+    .log-line.info { color:#00ff88; }
+    .log-line.warn { color:var(--warn); }
+    @keyframes fadeIn { to { opacity:1; } }
+
+    /* MODAL */
+    .modal {
+      display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+      background:rgba(0,0,0,0.9); z-index:100; justify-content:center; align-items:center;
+    }
+    .modal-content {
+      background:var(--dark); border:8px double var(--crt-green); padding:30px;
+      width:90%; max-width:500px; position:relative;
+    }
+    .close { position:absolute; top:10px; right:15px; font-size:30px; cursor:pointer; color:var(--warn); }
+    .form-group { margin:15px 0; }
+    .form-group label { display:block; margin-bottom:6px; color:#00ff88; }
+    .form-group input, .form-group select {
+      width:100%; background:transparent; border:2px solid var(--border); color:var(--crt-green);
+      padding:10px; font-family:inherit; font-size:18px;
+    }
+    .btn-submit {
+      background:var(--crt-green); color:#000; border:none; padding:12px 20px;
+      font-size:20px; cursor:pointer; margin-top:20px; width:100%;
+    }
+
+    /* STATUS BAR */
+    .status-bar {
+      grid-column:1/4; background:var(--dark); border-top:4px solid var(--crt-green);
+      padding:8px; text-align:center; font-size:16px; color:#00ff88;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- HEADER -->
+  <div class="header glow">MAINFRAME ADMIN v3.1</div>
+
+  <!-- USER CARD -->
+  <div class="user-card">
+    <div class="panel-title">CURRENT USER</div>
+    <img th:src="${user.photoURL} ?: 'https://via.placeholder.com/100'" alt="Avatar" class="avatar">
+    <div class="user-name" th:text="${user.displayName} ?: 'ROOT'">ROOT</div>
+    <div class="user-email" th:text="${user.email}">admin@labrynth.os</div>
+    <div class="admin-badge">GOD MODE</div>
+  </div>
+
+  <!-- USER LIST -->
+  <div class="user-list">
+    <div class="panel-title">USER DATABASE</div>
+    <div class="user-list-header">
+      <button class="refresh-btn" onclick="loadUsers()">REFRESH DATABASE</button>
+    </div>
+    <div class="user-list-content" id="userList"></div>
+    <button class="create-btn" onclick="openCreateModal()">+ CREATE NEW USER</button>
+  </div>
+
+  <!-- LOG PANEL -->
+  <div class="log-panel">
+    <div class="panel-title">SYSTEM LOG</div>
+    <div class="log-content" id="logContent"></div>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    ADMIN MODE • FULL CONTROL • <span id="clock"></span> (GMT+7)
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="userModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">x</span>
+    <h2 style="text-align:center; margin-bottom:20px;" id="modalTitle">CREATE USER</h2>
+    <form id="userForm">
+      <input type="hidden" id="editId">
+      <div class="form-group">
+        <label>USERNAME</label>
+        <input type="text" id="username" required>
+      </div>
+      <div class="form-group">
+        <label>EMAIL</label>
+        <input type="email" id="email" required>
+      </div>
+      <div class="form-group">
+        <label>ADMIN ROLE</label>
+        <select id="isAdmin">
+          <option value="false">USER</option>
+          <option value="true">ADMIN</option>
+        </select>
+      </div>
+      <button type="submit" class="btn-submit">SAVE USER</button>
+    </form>
+  </div>
+</div>
+
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  const API_BASE = '/api/users';
+  const logContent = document.getElementById('logContent');
+  const userList = document.getElementById('userList');
+  const modal = document.getElementById('userModal');
+  const form = document.getElementById('userForm');
+
+  function getVNTime() {
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    return new Date(utc + (7 * 3600000));
+  }
+  function formatVNTime(date) {
+    return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  }
+
+  function log(msg, type = 'info') {
+    const line = document.createElement('div');
+    line.className = `log-line ${type}`;
+    line.textContent = `[${formatVNTime(getVNTime())}] ${msg}`;
+    logContent.appendChild(line);
+    logContent.scrollTop = logContent.scrollHeight;
+  }
+
+  async function loadUsers() {
+    try {
+      const res = await fetch(API_BASE);
+      const users = await res.json();
+      userList.innerHTML = '';
+      users.forEach(user => {
+        const div = document.createElement('div');
+        div.className = 'user-item';
+        div.innerHTML = `
+          <div class="user-id">ID: ${user.userId}</div>
+          <div class="user-username">${user.username}</div>
+          <div class="user-role">${user.admin ? 'ADMIN' : 'USER'}</div>
+          <div class="actions">
+            <button class="btn-small btn-profile" onclick="viewProfile(${user.userId})">PROFILE</button>
+            <button class="btn-small btn-edit" onclick="openEditModal(${user.userId})">EDIT</button>
+            <button class="btn-small btn-delete" onclick="deleteUser(${user.userId})">DELETE</button>
+            <button class="btn-small btn-toggle-admin ${user.admin ? 'admin' : ''}"
+                    onclick="toggleAdmin(${user.userId}, ${!user.admin})">
+              ${user.admin ? 'REVOKE' : 'GRANT'}
+            </button>
+          </div>
+        `;
+        userList.appendChild(div);
+      });
+    } catch (err) {
+      log(`Failed to load users: ${err.message}`, 'error');
+    }
+  }
+
+  window.viewProfile = (id) => {
+    window.open(`/profile?userId=${id}`, '_blank');
+    log(`Profile viewed: User ${id}`, 'info');
+  };
+
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('editId').value;
+    const payload = {
+      username: document.getElementById('username').value,
+      email: document.getElementById('email').value,
+      admin: document.getElementById('isAdmin').value === 'true'
+    };
+
+    try {
+      if (id) {
+        await fetch(`${API_BASE}/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        log(`User ${id} updated`, 'success');
+      } else {
+        await fetch(API_BASE, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        log(`New user created`, 'success');
+      }
+      closeModal();
+      loadUsers();
+    } catch (err) {
+      log(`Operation failed: ${err.message}`, 'error');
+    }
+  };
+
+  window.deleteUser = async (id) => {
+    if (confirm('DELETE USER ID ' + id + '?')) {
+      try {
+        await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+        log(`User ${id} deleted`, 'warn');
+        loadUsers();
+      } catch (err) {
+        log(`Delete failed: ${err.message}`, 'error');
+      }
+    }
+  };
+
+  window.toggleAdmin = async (id, grant) => {
+    try {
+      await fetch(`${API_BASE}/${id}/admin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ admin: grant })
+      });
+      log(`Admin ${grant ? 'granted' : 'revoked'} for user ${id}`, grant ? 'success' : 'warn');
+      loadUsers();
+    } catch (err) {
+      log(`Admin toggle failed: ${err.message}`, 'error');
+    }
+  };
+
+  window.openCreateModal = () => {
+    document.getElementById('modalTitle').textContent = 'CREATE USER';
+    form.reset();
+    document.getElementById('editId').value = '';
+    modal.style.display = 'flex';
+  };
+  window.openEditModal = async (id) => {
+    try {
+      const res = await fetch(`${API_BASE}/${id}`);
+      const user = await res.json();
+      document.getElementById('modalTitle').textContent = 'EDIT USER';
+      document.getElementById('editId').value = user.userId;
+      document.getElementById('username').value = user.username;
+      document.getElementById('email').value = user.email;
+      document.getElementById('isAdmin').value = user.admin;
+      modal.style.display = 'flex';
+    } catch (err) {
+      log(`Load user failed: ${err.message}`, 'error');
+    }
+  };
+  window.closeModal = () => { modal.style.display = 'none'; };
+
+  function updateClock() {
+    document.getElementById('clock').textContent = formatVNTime(getVNTime());
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  document.addEventListener('DOMContentLoaded', () => {
+    log('MAINFRAME ADMIN v3.1 ONLINE', 'success');
+    loadUsers();
+  });
+  /*]]>*/
+</script>
+</body>
+</html>

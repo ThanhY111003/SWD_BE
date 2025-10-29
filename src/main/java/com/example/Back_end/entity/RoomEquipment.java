@@ -26,6 +26,4 @@ public class RoomEquipment {
     private String equipmentCode;
     private String category;
     private String status;
-    private LocalDateTime purchaseDate;
-    private BigDecimal price;
 }

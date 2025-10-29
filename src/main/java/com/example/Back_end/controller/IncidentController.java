@@ -14,6 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class IncidentController {
 
+
     private final IncidentService incidentService;
 
     @GetMapping

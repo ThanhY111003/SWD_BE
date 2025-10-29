@@ -19,10 +19,13 @@ public class User {
 
     @Column(unique = true, nullable = false)
     private String username;
-    private String password;
+
     private String email;
     private String fullName;
     private String phone;
+
+    @Column(name = "firebase_uid", unique = true, nullable = false)
+    private String firebaseUid;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -31,4 +34,11 @@ public class User {
     public void prePersist() { createdAt = LocalDateTime.now(); }
     @PreUpdate
     public void preUpdate() { updatedAt = LocalDateTime.now(); }
+
+    @Column(name = "is_admin", nullable = false)
+    private boolean admin = false;
+
+    public boolean isAdmin() { return admin; }
+    public void setAdmin(boolean admin) { this.admin = admin; }
+
 }

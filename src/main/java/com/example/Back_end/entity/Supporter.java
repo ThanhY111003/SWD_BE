@@ -1,11 +1,12 @@
 package com.example.Back_end.entity;
 
 import jakarta.persistence.*;
-
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "supporters")
@@ -13,7 +14,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Supporter {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long supporterId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -23,4 +25,8 @@ public class Supporter {
     private String supporterCode;
     private String status;
     private LocalDateTime registeredAt;
+
+    // ✅ Một supporter có thể trực nhiều ca
+    @ManyToMany(mappedBy = "supporters")
+    private List<SupporterShift> supporterShifts;
 }

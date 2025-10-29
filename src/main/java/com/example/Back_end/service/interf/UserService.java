@@ -11,4 +11,5 @@ public interface UserService {
     void delete(Long id);
     UserResponseDTO getById(Long id);
     List<UserResponseDTO> getAll();
+    UserResponseDTO setAdmin(Long id, boolean isAdmin);
 }

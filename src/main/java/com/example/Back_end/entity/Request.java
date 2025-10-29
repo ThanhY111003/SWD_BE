@@ -1,11 +1,13 @@
 package com.example.Back_end.entity;
 
+import com.example.Back_end.enums.RequestStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "requests")
@@ -27,7 +29,7 @@ public class Request {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "staff_id")
-    private Staff staff; // can be null if not yet handled
+    private Staff staff; // Gán khi request booking được duyệt
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lab_id")
@@ -35,14 +37,31 @@ public class Request {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
-    private Room room;
+    private Room room; // Gán nếu status == APPROVED
+
+    // ✅ Thêm supporter (dành cho OPEN_DOOR requests)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "supporter_id")
+    private Supporter supporter;
 
     private String title;
+
     @Column(columnDefinition = "TEXT")
     private String description;
-    private String status;
+
+    @Enumerated(EnumType.STRING)
+    private RequestStatus status;
+
     private LocalDateTime requestedAt;
     private LocalDateTime approvedAt;
     private LocalDateTime completedAt;
-}
 
+    // ✅ Many-to-Many với RoomSlot
+    @ManyToMany
+    @JoinTable(
+            name = "request_room_slots",
+            joinColumns = @JoinColumn(name = "request_id"),
+            inverseJoinColumns = @JoinColumn(name = "room_slot_id")
+    )
+    private List<RoomSlot> roomSlots;
+}

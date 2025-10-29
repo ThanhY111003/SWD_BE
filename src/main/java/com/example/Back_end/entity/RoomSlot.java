@@ -27,8 +27,8 @@ public class RoomSlot {
     private Boolean isAvailable;
 
     @ManyToMany(mappedBy = "roomSlots")
+    private List<Request> requests;
+
+    @ManyToMany(mappedBy = "roomSlots")
     private List<Lab> labs;
-
-
 }
-
