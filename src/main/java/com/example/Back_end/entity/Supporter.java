@@ -18,8 +18,8 @@ public class Supporter {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long supporterId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @OneToOne
+    @JoinColumn(name = "user_id", unique = true)
     private User user;
 
     private String supporterCode;

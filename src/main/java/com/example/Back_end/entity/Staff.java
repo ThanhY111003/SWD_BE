@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "staffs")
@@ -17,13 +18,17 @@ public class Staff {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long staffId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @OneToOne
+    @JoinColumn(name = "user_id", unique = true)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "lab_id")
-    private Lab lab;
+    @ManyToMany
+    @JoinTable(
+            name = "staff_lab",
+            joinColumns = @JoinColumn(name = "staff_id"),
+            inverseJoinColumns = @JoinColumn(name = "lab_id")
+    )
+    private List<Lab> labs;
 
     private String staffCode;
     private String position;

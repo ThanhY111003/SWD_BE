@@ -74,8 +74,8 @@ public class RequestServiceImpl implements RequestService {
                     .collect(Collectors.toList()));
 
             // Gán staff phụ trách lab
-            request.setStaff(staffRepo.findFirstByLab_LabId(request.getLab().getLabId())
-                    .orElse(null));
+            staffRepo.findFirstByLabId(request.getLab().getLabId()).orElse(null);
+
         }
 
         // ------------------------------------------------------------
@@ -117,8 +117,8 @@ public class RequestServiceImpl implements RequestService {
                             .orElseThrow(() -> new RuntimeException("Room not found"));
                     request.setRoom(room);
                 }
-                request.setStaff(staffRepo.findFirstByLab_LabId(request.getLab().getLabId())
-                        .orElse(null));
+                staffRepo.findFirstByLabId(request.getLab().getLabId()).orElse(null);
+
             }
 
             else if ("OPEN_DOOR".equals(typeName) && dto.getRoomSlotIds() != null && !dto.getRoomSlotIds().isEmpty()) {

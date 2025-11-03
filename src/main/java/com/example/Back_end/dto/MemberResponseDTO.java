@@ -4,12 +4,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class MemberResponseDTO {
     private Long memberId;
     private Long userId;
-    private Long labId;
+    private List<Long> labIds;
     private String memberCode;
     private String role;
 

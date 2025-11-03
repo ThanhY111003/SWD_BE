@@ -1,0 +1,65 @@
+[
+  {
+    "labName": "AI Research Lab",
+    "labCode": "AI-001",
+    "location": "Building A, Floor 3",
+    "description": "Lab for AI and Robotics research"
+  },
+  {
+    "labName": "BioTech Innovation Center",
+    "labCode": "BIO-002",
+    "location": "Building B, Floor 1",
+    "description": "Focused on biotechnology and genetic engineering experiments"
+  },
+  {
+    "labName": "Cybersecurity Operations Lab",
+    "labCode": "SEC-003",
+    "location": "Building C, Floor 2",
+    "description": "Practical security analysis, penetration testing and defense simulation"
+  },
+  {
+    "labName": "Green Energy Research Unit",
+    "labCode": "ENG-004",
+    "location": "Building D, Floor 4",
+    "description": "Developing sustainable and renewable energy systems"
+  },
+  {
+    "labName": "Data Science and Analytics Hub",
+    "labCode": "DS-005",
+    "location": "Building E, Floor 3",
+    "description": "Working on machine learning, AI analytics, and big data visualization"
+  },
+  {
+    "labName": "Human-Computer Interaction Studio",
+    "labCode": "HCI-006",
+    "location": "Building F, Floor 1",
+    "description": "Experimenting with UX/UI, AR/VR interfaces, and user experience testing"
+  },
+  {
+    "labName": "Quantum Computing Lab",
+    "labCode": "QC-007",
+    "location": "Building G, Floor 2",
+    "description": "Exploring quantum algorithms and quantum circuit simulations"
+  },
+  {
+    "labName": "Robotics and Automation Lab",
+    "labCode": "ROB-008",
+    "location": "Building H, Floor 5",
+    "description": "Developing autonomous robots and industrial automation systems"
+  },
+  {
+    "labName": "Environmental Monitoring Lab",
+    "labCode": "ENV-009",
+    "location": "Building I, Floor 2",
+    "description": "Analyzing air, water, and soil quality using sensor networks"
+  },
+  {
+    "labName": "Software Engineering Lab",
+    "labCode": "SWE-010",
+    "location": "Building J, Floor 4",
+    "description": "Focusing on agile development, DevOps, and software quality assurance"
+  }
+]
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+

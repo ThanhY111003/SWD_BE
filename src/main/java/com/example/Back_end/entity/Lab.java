@@ -1,5 +1,6 @@
 package com.example.Back_end.entity;
 
+import com.example.Back_end.enums.LabStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,8 +21,10 @@ public class Lab {
     private String labCode;
     private String location;
     private String description;
-    private Integer capacity;
-    private String status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private LabStatus status = LabStatus.ACTIVE;
 
     // Một Lab có nhiều Room
     @OneToMany(mappedBy = "lab", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -36,4 +39,10 @@ public class Lab {
     private List<RoomSlot> roomSlots;
 
 
+    @ManyToMany(mappedBy = "labs")
+    private List<Member> members;
+
+    // ✅ Many-to-Many với Staff
+    @ManyToMany(mappedBy = "labs")
+    private List<Staff> staffs;
 }

@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SupporterRepository extends JpaRepository<Supporter, Long> {
-
+    boolean existsByUser_UserId(Long userId);
 }
