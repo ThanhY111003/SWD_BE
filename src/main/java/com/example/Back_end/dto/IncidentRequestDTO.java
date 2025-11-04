@@ -14,4 +14,7 @@ public class IncidentRequestDTO {
     private String description;
     private String severity;
     private String status;
+
+    // Tùy chọn: client có thể gửi URL đã upload sẵn
+    private String attachmentUrl;
 }

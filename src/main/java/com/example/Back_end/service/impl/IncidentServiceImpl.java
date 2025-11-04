@@ -3,6 +3,7 @@ package com.example.Back_end.service.impl;
 import com.example.Back_end.dto.IncidentRequestDTO;
 import com.example.Back_end.dto.IncidentResponseDTO;
 import com.example.Back_end.entity.Incident;
+import com.example.Back_end.firebase.FirebaseStorageService;
 import com.example.Back_end.repository.IncidentRepository;
 import com.example.Back_end.repository.IncidentTypeRepository;
 import com.example.Back_end.repository.LabRepository;
@@ -10,7 +11,9 @@ import com.example.Back_end.repository.SupporterRepository;
 import com.example.Back_end.service.interf.IncidentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +26,7 @@ public class IncidentServiceImpl implements IncidentService {
     private final IncidentTypeRepository incidentTypeRepo;
     private final SupporterRepository supporterRepo;
     private final LabRepository labRepo;
+    private final FirebaseStorageService firebaseStorageService;
 
     @Override
     public List<IncidentResponseDTO> getAll() {
@@ -47,6 +51,7 @@ public class IncidentServiceImpl implements IncidentService {
         incident.setDescription(dto.getDescription());
         incident.setSeverity(dto.getSeverity());
         incident.setStatus(dto.getStatus());
+        incident.setAttachmentUrl(dto.getAttachmentUrl());
 
         // ✅ Tự set thời gian khi tạo mới
         incident.setReportedAt(LocalDateTime.now());
@@ -81,6 +86,9 @@ public class IncidentServiceImpl implements IncidentService {
         }
         incident.setStatus(dto.getStatus());
 
+        // ✅ Cập nhật URL file đính kèm nếu truyền vào
+        incident.setAttachmentUrl(dto.getAttachmentUrl());
+
         if (dto.getIncidentTypeId() != null) {
             incident.setIncidentType(incidentTypeRepo.findById(dto.getIncidentTypeId()).orElse(null));
         }
@@ -99,6 +107,18 @@ public class IncidentServiceImpl implements IncidentService {
         incidentRepo.deleteById(id);
     }
 
+    @Override
+    public IncidentResponseDTO uploadAttachment(Long id, MultipartFile file) throws IOException {
+        Incident incident = incidentRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Incident not found"));
+
+        String url = firebaseStorageService.uploadFile(file);
+        incident.setAttachmentUrl(url);
+
+        incident = incidentRepo.save(incident);
+        return toResponseDTO(incident);
+    }
+
     private IncidentResponseDTO toResponseDTO(Incident incident) {
         IncidentResponseDTO dto = new IncidentResponseDTO();
         dto.setIncidentId(incident.getIncidentId());
@@ -108,6 +128,7 @@ public class IncidentServiceImpl implements IncidentService {
         dto.setStatus(incident.getStatus());
         dto.setReportedAt(incident.getReportedAt());
         dto.setResolvedAt(incident.getResolvedAt());
+        dto.setAttachmentUrl(incident.getAttachmentUrl());
 
         dto.setIncidentTypeName(
                 incident.getIncidentType() != null ? incident.getIncidentType().getTypeName() : null

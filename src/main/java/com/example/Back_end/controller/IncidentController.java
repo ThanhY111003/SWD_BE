@@ -4,8 +4,10 @@ import com.example.Back_end.dto.IncidentRequestDTO;
 import com.example.Back_end.dto.IncidentResponseDTO;
 import com.example.Back_end.service.interf.IncidentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -41,5 +43,14 @@ public class IncidentController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         incidentService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Upload file đính kèm cho Incident
+    @PostMapping(value = "/{id}/attachment", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<IncidentResponseDTO> uploadAttachment(
+            @PathVariable Long id,
+            @RequestPart("file") MultipartFile file
+    ) throws Exception {
+        return ResponseEntity.ok(incidentService.uploadAttachment(id, file));
     }
 }

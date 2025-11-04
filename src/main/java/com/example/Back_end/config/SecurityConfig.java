@@ -25,9 +25,10 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // ✅ tắt CSRF
                 .cors(cors -> {})             // ✅ bật CORS support
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/api/auth/**", "/css/**", "/js/**", "/images/**", "/swagger-ui/**","/v3/api-docs/**" ).permitAll()
+                        .requestMatchers("/login", "/api/auth/**", "/css/**", "/js/**", "/images/**", "/swagger-ui/**","/v3/api-docs/**", "/access-denied" ).permitAll()
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(e -> e.accessDeniedPage("/access-denied"))
                 .formLogin(form -> form.disable())
                 .logout(logout -> logout
                         .logoutUrl("/logout")

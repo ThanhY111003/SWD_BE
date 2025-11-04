@@ -18,6 +18,9 @@ public class IncidentResponseDTO {
     private String severity;
     private String status;
 
+    // URL công khai của file đính kèm
+    private String attachmentUrl;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime reportedAt;
 

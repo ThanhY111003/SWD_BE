@@ -24,6 +24,7 @@ public class FirebaseAppConfig {
 
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                .setProjectId("swdbe-ba5c3")
                 .build();
 
         // Nếu đã có thì trả về, chưa có thì tạo mới

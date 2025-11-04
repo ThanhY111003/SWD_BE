@@ -35,4 +35,8 @@ public class Incident {
     private String status;
     private LocalDateTime reportedAt;
     private LocalDateTime resolvedAt;
+
+    // URL công khai của file đính kèm được upload lên Firebase Storage
+    @Column(columnDefinition = "TEXT")
+    private String attachmentUrl;
 }
