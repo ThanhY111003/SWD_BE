@@ -1,5 +1,6 @@
 package com.example.Back_end.controller;
 
+import com.example.Back_end.dto.LabAssignRoomSlotByDateDTO;
 import com.example.Back_end.dto.LabRequestDTO;
 import com.example.Back_end.dto.LabResponseDTO;
 import com.example.Back_end.enums.LabStatus;
@@ -68,5 +69,12 @@ public class LabController {
     ) {
         return ResponseEntity.ok(labService.updateStatus(id, status));
     }
+
+    @PostMapping("/assign-roomslots-by-date")
+    public ResponseEntity<String> assignRoomSlotsByDate(@RequestBody LabAssignRoomSlotByDateDTO dto) {
+        String message = labService.assignRoomSlotsToLabByDate(dto);
+        return ResponseEntity.ok(message);
+    }
+
 
 }

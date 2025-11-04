@@ -4,7 +4,9 @@ import com.example.Back_end.dto.RequestRequestDTO;
 import com.example.Back_end.dto.RequestResponseDTO;
 import com.example.Back_end.entity.*;
 import com.example.Back_end.enums.RequestStatus;
+import com.example.Back_end.enums.RequestTypeEnum;
 import com.example.Back_end.repository.*;
+import com.example.Back_end.service.interf.NotificationService;
 import com.example.Back_end.service.interf.RequestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,7 +20,6 @@ import java.util.stream.Collectors;
 public class RequestServiceImpl implements RequestService {
 
     private final RequestRepository requestRepo;
-    private final RequestTypeRepository requestTypeRepo;
     private final MemberRepository memberRepo;
     private final StaffRepository staffRepo;
     private final LabRepository labRepo;
@@ -26,6 +27,7 @@ public class RequestServiceImpl implements RequestService {
     private final RoomSlotRepository roomSlotRepo;
     private final SupporterRepository supporterRepo;
     private final SupporterShiftRepository supporterShiftRepo;
+    private final NotificationService notificationService;
 
     // =======================================================================
     //                               CRUD
@@ -55,34 +57,35 @@ public class RequestServiceImpl implements RequestService {
         request.setRequestedAt(LocalDateTime.now());
         request.setStatus(RequestStatus.PENDING);
 
-        request.setRequestType(requestTypeRepo.findById(dto.getRequestTypeId())
-                .orElseThrow(() -> new RuntimeException("RequestType not found")));
+        // ✅ parse enum từ String
+        try {
+            request.setRequestType(RequestTypeEnum.valueOf(dto.getRequestType().toUpperCase()));
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid request type: " + dto.getRequestType());
+        }
+
         request.setMember(memberRepo.findById(dto.getMemberId())
                 .orElseThrow(() -> new RuntimeException("Member not found")));
         request.setLab(labRepo.findById(dto.getLabId())
                 .orElseThrow(() -> new RuntimeException("Lab not found")));
 
-        String typeName = request.getRequestType().getTypeName().toUpperCase();
-
         // ------------------------------------------------------------
         // CASE 1: BOOKING
         // ------------------------------------------------------------
-        if ("BOOKING".equals(typeName) && dto.getRoomSlotIds() != null) {
+        if (request.getRequestType() == RequestTypeEnum.BOOKING && dto.getRoomSlotIds() != null) {
             request.setRoomSlots(dto.getRoomSlotIds().stream()
                     .map(id -> roomSlotRepo.findById(id)
                             .orElseThrow(() -> new RuntimeException("RoomSlot not found")))
                     .collect(Collectors.toList()));
 
-            // Gán staff phụ trách lab
+            // Gán staff phụ trách lab (nếu có)
             staffRepo.findFirstByLabId(request.getLab().getLabId()).orElse(null);
-
         }
 
         // ------------------------------------------------------------
         // CASE 2: OPEN_DOOR
         // ------------------------------------------------------------
-        else if ("OPEN_DOOR".equals(typeName) && dto.getRoomSlotIds() != null && !dto.getRoomSlotIds().isEmpty()) {
-            // Gán supporter phù hợp với ca làm việc (dựa vào slot)
+        else if (request.getRequestType() == RequestTypeEnum.OPEN_DOOR && dto.getRoomSlotIds() != null && !dto.getRoomSlotIds().isEmpty()) {
             RoomSlot rs = roomSlotRepo.findById(dto.getRoomSlotIds().get(0))
                     .orElseThrow(() -> new RuntimeException("RoomSlot not found"));
 
@@ -91,6 +94,12 @@ public class RequestServiceImpl implements RequestService {
                 request.setSupporter(supporter);
             }
         }
+
+        notificationService.notifyStaff(
+                staffRepo.findFirstByLabId(request.getLab().getLabId()).orElse(null),
+                "Yêu cầu mới từ " + request.getMember().getMemberCode(),
+                "Loại yêu cầu: " + request.getRequestType() + " - " + request.getTitle()
+        );
 
         return toResponse(requestRepo.save(request));
     }
@@ -103,25 +112,22 @@ public class RequestServiceImpl implements RequestService {
         RequestStatus newStatus = RequestStatus.valueOf(dto.getStatus().toUpperCase());
         request.setStatus(newStatus);
 
-        String typeName = request.getRequestType().getTypeName().toUpperCase();
-
         // ------------------------------------------------------------
         // APPROVED
         // ------------------------------------------------------------
         if (newStatus == RequestStatus.APPROVED) {
             request.setApprovedAt(LocalDateTime.now());
 
-            if ("BOOKING".equals(typeName)) {
+            if (request.getRequestType() == RequestTypeEnum.BOOKING) {
                 if (dto.getRoomId() != null) {
                     Room room = roomRepo.findById(dto.getRoomId())
                             .orElseThrow(() -> new RuntimeException("Room not found"));
                     request.setRoom(room);
                 }
                 staffRepo.findFirstByLabId(request.getLab().getLabId()).orElse(null);
-
             }
 
-            else if ("OPEN_DOOR".equals(typeName) && dto.getRoomSlotIds() != null && !dto.getRoomSlotIds().isEmpty()) {
+            else if (request.getRequestType() == RequestTypeEnum.OPEN_DOOR && dto.getRoomSlotIds() != null && !dto.getRoomSlotIds().isEmpty()) {
                 RoomSlot rs = roomSlotRepo.findById(dto.getRoomSlotIds().get(0))
                         .orElseThrow(() -> new RuntimeException("RoomSlot not found"));
                 Supporter supporter = findAvailableSupporterForRoomSlot(rs);
@@ -158,19 +164,15 @@ public class RequestServiceImpl implements RequestService {
     //                           HELPER FUNCTIONS
     // =======================================================================
 
-    /**
-     * Tìm supporter có ca làm trùng thời gian với RoomSlot.
-     */
     private Supporter findAvailableSupporterForRoomSlot(RoomSlot rs) {
         var shifts = supporterShiftRepo.findAvailableShiftsForSlot(
                 rs.getBookingDate(),
-                rs.getSlot().getStartTime(),
-                rs.getSlot().getEndTime()
+                rs.getStartTime(),
+                rs.getEndTime()
         );
 
         if (shifts.isEmpty()) return null;
 
-        // Ưu tiên supporter đầu tiên trong ca
         var shift = shifts.get(0);
         if (shift.getSupporters() != null && !shift.getSupporters().isEmpty()) {
             return shift.getSupporters().get(0);
@@ -178,13 +180,10 @@ public class RequestServiceImpl implements RequestService {
         return null;
     }
 
-    /**
-     * Chuyển entity sang DTO trả về.
-     */
     private RequestResponseDTO toResponse(Request r) {
         RequestResponseDTO dto = new RequestResponseDTO();
         dto.setRequestId(r.getRequestId());
-        dto.setRequestType(r.getRequestType() != null ? r.getRequestType().getTypeName() : null);
+        dto.setRequestType(r.getRequestType() != null ? r.getRequestType().name() : null);
         dto.setMemberName(r.getMember() != null ? r.getMember().getMemberCode() : null);
         dto.setStaffName(r.getStaff() != null ? r.getStaff().getStaffCode() : null);
         dto.setSupporterName(r.getSupporter() != null ? r.getSupporter().getSupporterCode() : null);
@@ -199,9 +198,12 @@ public class RequestServiceImpl implements RequestService {
 
         dto.setRoomSlots(r.getRoomSlots() != null
                 ? r.getRoomSlots().stream()
-                .map(rs -> rs.getSlot().getSlotName() + " - " + rs.getBookingDate())
+                .map(rs -> rs.getSlotName() + " ("
+                        + rs.getStartTime() + " - " + rs.getEndTime() +
+                        ") - " + rs.getBookingDate())
                 .collect(Collectors.toList())
                 : null);
+
         return dto;
     }
 }

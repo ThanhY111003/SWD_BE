@@ -1,11 +1,16 @@
 package com.example.Back_end.service.impl;
 
+import com.example.Back_end.dto.LabAssignRoomSlotByDateDTO;
 import com.example.Back_end.dto.LabRequestDTO;
 import com.example.Back_end.dto.LabResponseDTO;
 import com.example.Back_end.entity.Lab;
+import com.example.Back_end.entity.RoomSlot;
 import com.example.Back_end.enums.LabStatus;
 import com.example.Back_end.repository.LabRepository;
+import com.example.Back_end.repository.RoomRepository;
+import com.example.Back_end.repository.RoomSlotRepository;
 import com.example.Back_end.service.interf.LabService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +22,8 @@ import java.util.stream.Collectors;
 public class LabServiceImpl implements LabService {
 
     private final LabRepository labRepository;
+    private final RoomRepository roomRepository;
+    private final RoomSlotRepository roomSlotRepository;
 
     @Override
     public LabResponseDTO create(LabRequestDTO request) {
@@ -89,6 +96,36 @@ public class LabServiceImpl implements LabService {
         Lab updated = labRepository.save(lab);
 
         return mapToResponse(updated);
+    }
+
+    @Override
+    @Transactional
+    public String assignRoomSlotsToLabByDate(LabAssignRoomSlotByDateDTO dto) {
+        Lab lab = labRepository.findById(dto.getLabId())
+                .orElseThrow(() -> new RuntimeException("❌ Không tìm thấy Lab có ID: " + dto.getLabId()));
+
+        // Lấy tất cả RoomSlot theo ngày
+        List<RoomSlot> roomSlotsInDay = roomSlotRepository.findByBookingDate(dto.getBookingDate());
+
+        if (roomSlotsInDay.isEmpty()) {
+            throw new RuntimeException("⚠️ Không tìm thấy RoomSlot nào cho ngày " + dto.getBookingDate());
+        }
+
+        // Lọc theo danh sách ca được chọn
+        List<RoomSlot> selectedSlots = roomSlotsInDay.stream()
+                .filter(rs -> dto.getSlotNames().contains(rs.getSlotName()))
+                .toList();
+
+        if (selectedSlots.isEmpty()) {
+            throw new RuntimeException("⚠️ Không tìm thấy RoomSlot nào trùng với các ca: " + dto.getSlotNames());
+        }
+
+        // Gán vào Lab
+        lab.getRoomSlots().addAll(selectedSlots);
+        labRepository.save(lab);
+
+        return "✅ Đã gán " + selectedSlots.size() + " RoomSlot (" + dto.getSlotNames() +
+                ") vào Lab: " + lab.getLabName() + " cho ngày " + dto.getBookingDate();
     }
 
 

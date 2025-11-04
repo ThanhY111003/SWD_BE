@@ -15,6 +15,11 @@ public interface RoomSlotRepository extends JpaRepository<RoomSlot, Long> {
 
     List<RoomSlot> findByIsAvailableTrue();
 
-    @Query("SELECT rs FROM RoomSlot rs WHERE rs.slot.slotId = :slotId")
-    List<RoomSlot> findBySlotId(@Param("slotId") Long slotId);
+    List<RoomSlot> findBySlotName(String slotName);
+
+    @Query("SELECT rs FROM RoomSlot rs WHERE rs.startTime = :startTime AND rs.endTime = :endTime")
+    List<RoomSlot> findByTimeRange(@Param("startTime") java.time.LocalTime startTime,
+                                   @Param("endTime") java.time.LocalTime endTime);
+
+    boolean existsByBookingDateBetween(LocalDate startDate, LocalDate endDate);
 }

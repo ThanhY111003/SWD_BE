@@ -1,6 +1,7 @@
 package com.example.Back_end.entity;
 
 import com.example.Back_end.enums.RequestStatus;
+import com.example.Back_end.enums.RequestTypeEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,9 +20,8 @@ public class Request {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long requestId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "request_type_id")
-    private RequestType requestType;
+    @Enumerated(EnumType.STRING)
+    private RequestTypeEnum requestType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")

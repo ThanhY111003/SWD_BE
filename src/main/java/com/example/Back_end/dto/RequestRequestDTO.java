@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class RequestRequestDTO {
-    private Long requestTypeId;
+    private String requestType;
     private Long memberId;
     private Long labId;
     private Long roomId; // optional, chỉ dùng khi approved

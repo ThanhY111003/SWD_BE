@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -18,9 +19,9 @@ public class RoomSlot {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomSlotId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "slot_id")
-    private Slot slot;
+    private String slotName;        // ví dụ: "Ca 1" hoặc "Morning Slot"
+    private LocalTime startTime;    // ví dụ: 07:00
+    private LocalTime endTime;      // ví dụ: 09:00
 
     private LocalDate bookingDate;
     private String status;
