@@ -20,7 +20,7 @@ public class FirebaseAuthService {
     private final FirebaseAuth firebaseAuth;
     private final UserRepository userRepository;
 
-    private static final String ADMIN_EMAIL = "vyastaroth123@gmail.com";
+    private static final String ADMIN_EMAIL = "hailqse183698@fpt.edu.vn";
 
     public UserResponseDTO signInWithGoogle(GoogleSignInRequest request) {
         try {

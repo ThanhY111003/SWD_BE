@@ -14,16 +14,21 @@ import java.util.List;
 @Repository
 public interface SupporterShiftRepository extends JpaRepository<SupporterShift, Long> {
 
-    @Query("""
-        SELECT DISTINCT ss FROM SupporterShift ss
-        WHERE ss.shiftDate = :date
-          AND ss.startTime <= :slotStart
-          AND ss.endTime >= :slotEnd
-    """)
+    @Query(value = """
+    SELECT DISTINCT * 
+    FROM supporter_shifts ss
+    WHERE ss.shift_date = :date
+      AND CAST(ss.start_time AS time) <= CAST(:slotStart AS time)
+      AND CAST(ss.end_time AS time) >= CAST(:slotEnd AS time)
+""", nativeQuery = true)
     List<SupporterShift> findAvailableShiftsForSlot(
             @Param("date") LocalDate date,
             @Param("slotStart") LocalTime slotStart,
             @Param("slotEnd") LocalTime slotEnd
     );
+
+
+    @Query("SELECT s FROM SupporterShift s WHERE s.shiftDate = :date")
+    List<SupporterShift> findByShiftDate(LocalDate date);
 
 }

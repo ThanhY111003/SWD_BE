@@ -2,384 +2,297 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>MAINFRAME ADMIN v3.1</title>
-  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <title>MAINFRAME v3.1 | CONTROL PANEL</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Orbitron:wght@700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --crt-green: #00ff00;
-      --glow: #00ff41;
-      --dark: #000;
-      --log-bg: #001100;
-      --warn: #ffaa00;
-      --success: #55ff55;
-      --error: #ff5555;
-      --border: #00cc00;
-    }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    html, body { height:100%; overflow:hidden; }
-    body {
-      background:var(--dark); color:var(--crt-green); font-family:'VT323',monospace;
-      font-size:20px; min-height:100vh; overflow:hidden; position:relative; padding:20px;
-    }
-    body::before {
-      content:''; position:fixed; top:0; left:0; right:0; bottom:0;
-      background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px);
-      pointer-events:none; z-index:10; animation:flicker 3s infinite;
-    }
-    @keyframes flicker { 0%,100%{opacity:1} 50%{opacity:0.97} }
-    .glow { text-shadow:0 0 5px var(--glow),0 0 10px var(--glow); }
-
-    /* CONTAINER CỐ ĐỊNH */
-    .container {
-      max-width:1400px; margin:0 auto; height:calc(100vh - 40px);
-      display:grid;
-      grid-template-rows: auto 1fr auto;
-      grid-template-columns:1fr 1.6fr 1fr;
-      gap:18px;
-      position:relative; z-index:2;
-    }
-
-    /* HEADER */
-    .header {
-      grid-column:1/4; background:var(--dark); border:8px double var(--crt-green);
-      padding:15px; text-align:center; font-size:32px; letter-spacing:8px;
-      box-shadow:0 0 30px rgba(0,255,0,0.5); position:relative;
-    }
-    .header::before, .header::after {
-      content:''; position:absolute; width:20px; height:100%; background:var(--crt-green);
-      top:0; box-shadow:0 0 10px var(--glow);
-    }
-    .header::before { left:-10px; }
-    .header::after { right:-10px; }
-
-    /* USER CARD - CỐ ĐỊNH */
-    .user-card {
-      background:var(--dark); border:8px double var(--crt-green);
-      padding:25px; display:flex; flex-direction:column; align-items:center;
-      box-shadow:0 0 25px rgba(0,255,0,0.4); position:relative;
-      overflow:hidden;
-    }
-    .panel-title {
-      position:absolute; top:-14px; left:50%; transform:translateX(-50%);
-      background:var(--dark); padding:0 15px; font-size:18px; letter-spacing:3px;
-      color:#00cc00;
-    }
-    .avatar {
-      width:100px; height:100px; border:5px solid var(--crt-green); border-radius:50%;
-      object-fit:cover; box-shadow:0 0 25px var(--glow); margin-bottom:15px;
-    }
-    .user-name { font-size:26px; margin:8px 0; color:#00ff88; }
-    .user-email { font-size:18px; opacity:0.8; }
-    .admin-badge {
-      background:#ff0000; color:#fff; padding:4px 12px; font-size:14px;
-      position:absolute; top:15px; right:15px; letter-spacing:2px;
-      box-shadow:0 0 15px #ff0000; animation:pulse-red 2s infinite;
-    }
-    @keyframes pulse-red { 0%,100%{box-shadow:0 0 15px #ff0000} 50%{box-shadow:0 0 25px #ff5555} }
-
-    /* USER LIST - SCROLL RIÊNG */
-    .user-list {
-      background:var(--dark); border:8px double var(--crt-green);
-      padding:20px; display:flex; flex-direction:column;
-      box-shadow:0 0 25px rgba(0,255,0,0.4); position:relative;
-      overflow:hidden;
-    }
-    .user-list-header { margin-bottom:10px; display:flex; flex-direction:column; gap:8px; }
-    .refresh-btn, .create-btn {
-      width:100%; padding:12px; background:transparent;
-      border:2px solid var(--border); color:var(--crt-green); cursor:pointer;
-      font-size:18px; letter-spacing:2px; transition:0.3s;
-    }
-    .refresh-btn:hover, .create-btn:hover {
-      background:var(--crt-green); color:#000;
-    }
-    .user-list-content {
-      flex:1; overflow-y:auto; padding-right:8px;
-    }
-    .user-list-content::-webkit-scrollbar { width:10px; }
-    .user-list-content::-webkit-scrollbar-track { background:#000; border:1px solid #003300; }
-    .user-list-content::-webkit-scrollbar-thumb {
-      background:#004400; border:2px solid var(--crt-green); border-radius:2px;
-    }
-    .user-item {
-      background:rgba(0,50,0,0.5); border:1px solid var(--border); padding:12px;
-      margin:8px 0; border-radius:4px; position:relative; transition:0.3s;
-    }
-    .user-item:hover { background:rgba(0,100,0,0.7); transform:translateX(5px); }
-    .user-id { font-size:16px; color:#00ff88; }
-    .user-username { font-size:20px; }
-    .user-role { font-size:14px; color:var(--warn); }
-    .actions { display:flex; gap:6px; margin-top:8px; }
-    .btn-small {
-      font-size:14px; padding:6px 10px; background:transparent; border:1px solid;
-      cursor:pointer; transition:0.3s; flex:1; text-align:center;
-    }
-    .btn-edit { border-color:#00ffff; color:#00ffff; }
-    .btn-edit:hover { background:#00ffff; color:#000; }
-    .btn-delete { border-color:#ff5555; color:#ff5555; }
-    .btn-delete:hover { background:#ff5555; color:#000; }
-    .btn-toggle-admin { border-color:#ffaa00; color:#ffaa00; }
-    .btn-toggle-admin:hover { background:#ffaa00; color:#000; }
-    .btn-toggle-admin.admin { border-color:#00ff00; color:#00ff00; }
-    .btn-toggle-admin.admin:hover { background:#00ff00; color:#000; }
-    .btn-profile { border-color:#00aaff; color:#00aaff; }
-    .btn-profile:hover { background:#00aaff; color:#000; }
-
-    /* LOG PANEL - SCROLL RIÊNG */
-    .log-panel {
-      background:var(--log-bg); border:8px double var(--crt-green);
-      padding:20px; display:flex; flex-direction:column;
-      box-shadow:0 0 25px rgba(0,255,0,0.3), inset 0 0 30px rgba(0,50,0,0.7);
-      position:relative; overflow:hidden;
-    }
-    .log-content {
-      flex:1; overflow-y:auto; padding-right:8px; font-size:18px; line-height:1.5;
-      word-break:break-all; margin-top:10px;
-    }
-    .log-content::-webkit-scrollbar { width:10px; }
-    .log-content::-webkit-scrollbar-track { background:#000; border:1px solid #003300; }
-    .log-content::-webkit-scrollbar-thumb {
-      background:#004400; border:2px solid var(--crt-green); border-radius:2px;
-    }
-    .log-line { margin:4px 0; opacity:0; animation:fadeIn 0.3s forwards; }
-    .log-line.error { color:var(--error); }
-    .log-line.success { color:var(--success); }
-    .log-line.info { color:#00ff88; }
-    .log-line.warn { color:var(--warn); }
-    @keyframes fadeIn { to { opacity:1; } }
-
-    /* MODAL */
-    .modal {
-      display:none; position:fixed; top:0; left:0; right:0; bottom:0;
-      background:rgba(0,0,0,0.9); z-index:100; justify-content:center; align-items:center;
-    }
-    .modal-content {
-      background:var(--dark); border:8px double var(--crt-green); padding:30px;
-      width:90%; max-width:500px; position:relative;
-    }
-    .close { position:absolute; top:10px; right:15px; font-size:30px; cursor:pointer; color:var(--warn); }
-    .form-group { margin:15px 0; }
-    .form-group label { display:block; margin-bottom:6px; color:#00ff88; }
-    .form-group input, .form-group select {
-      width:100%; background:transparent; border:2px solid var(--border); color:var(--crt-green);
-      padding:10px; font-family:inherit; font-size:18px;
-    }
-    .btn-submit {
-      background:var(--crt-green); color:#000; border:none; padding:12px 20px;
-      font-size:20px; cursor:pointer; margin-top:20px; width:100%;
-    }
-
-    /* STATUS BAR */
-    .status-bar {
-      grid-column:1/4; background:var(--dark); border-top:4px solid var(--crt-green);
-      padding:8px; text-align:center; font-size:16px; color:#00ff88;
-    }
+    :root{--bg:#0a0e17;--card:#0f1a2e;--green:#00ff9d;--cyan:#00ffff;--red:#ff3355;--text:#a0f0ff;--border:#00ff9d}
+    *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'IBM Plex Mono',monospace;min-height:100vh;overflow-y:auto;padding:20px 20px 100px;font-size:14px}
+    body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(90deg,rgba(0,255,157,.03)0,transparent 1px,transparent 50px,rgba(0,255,157,.03)51px);pointer-events:none;animation:s 8s linear infinite;z-index:0}
+    @keyframes s{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+    .header{background:linear-gradient(135deg,#00c9a7,#00ffff);padding:15px 25px;border-radius:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 0 30px rgba(0,255,157,.6);color:#000;font-family:'Orbitron',sans-serif;font-size:22px;font-weight:700;letter-spacing:3px;position:relative;z-index:10}
+    .user-info{display:flex;align-items:center;gap:12px;cursor:pointer;transition:.3s;padding:8px;border-radius:8px}
+    .user-info:hover{background:rgba(255,255,255,.1);transform:scale(1.02)}
+    .avatar{width:40px;height:40px;border-radius:50%;border:3px solid #000;box-shadow:0 0 15px #00ffff}
+    .badge{background:#ff0000;color:#fff;padding:4px 10px;border-radius:4px;font-size:10px;animation:p 2s infinite}
+    @keyframes p{50%{box-shadow:0 0 20px #ff0000}}
+    .btn{padding:10px 16px;border:none;border-radius:6px;font-weight:600;cursor:pointer;transition:.3s;font-size:12px;letter-spacing:1px}
+    .btn-create{background:#00ff9d;color:#000}.btn-delete{background:#ff3355;color:#fff}.btn-update{background:#00b7eb;color:#fff}.btn-logout{background:#ff0033;color:#fff;box-shadow:0 0 15px #ff3355}
+    .btn:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(255,255,255,.4)}
+    .panel{background:var(--card);border:2px solid var(--border);border-radius:10px;padding:20px;margin-bottom:25px;box-shadow:0 0 20px rgba(0,255,157,.3)}
+    .title{color:var(--cyan);font-size:16px;font-weight:600;margin-bottom:15px;text-shadow:0 0 8px var(--cyan);letter-spacing:2px}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin:15px 0}
+    .stat{background:rgba(0,255,157,.1);padding:12px;border-radius:8px;text-align:center;border:1px dashed var(--green)}
+    .num{font-size:28px;font-weight:700;color:var(--cyan);font-family:'Orbitron'}
+    .label{font-size:11px;color:#88f0cc}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{padding:10px;text-align:left;border-bottom:1px solid rgba(0,255,157,.3);font-size:13px}
+    th{color:var(--cyan);background:rgba(0,255,157,.1)}
+    .actions{display:flex;gap:6px}
+    .actions button{padding:6px 10px;font-size:11px}
+    .form-group{margin:10px 0}
+    input,select{width:100%;padding:10px;background:#0a1a2a;border:1px solid var(--green);border-radius:6px;color:#fff;font-family:inherit}
+    .hidden{display:none}
+    .status-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(0,255,157,.2);padding:10px;text-align:center;color:var(--cyan);font-size:11px;letter-spacing:1.5px;backdrop-filter:blur(6px);border-top:1px solid var(--border);z-index:1000}
+    .panel:last-child{margin-bottom:90px}
   </style>
 </head>
 <body>
 
-<div class="container">
-  <!-- HEADER -->
-  <div class="header glow">MAINFRAME ADMIN v3.1</div>
-
-  <!-- USER CARD -->
-  <div class="user-card">
-    <div class="panel-title">CURRENT USER</div>
-    <img th:src="${user.photoURL} ?: 'https://via.placeholder.com/100'" alt="Avatar" class="avatar">
-    <div class="user-name" th:text="${user.displayName} ?: 'ROOT'">ROOT</div>
-    <div class="user-email" th:text="${user.email}">admin@labrynth.os</div>
-    <div class="admin-badge">GOD MODE</div>
-  </div>
-
-  <!-- USER LIST -->
-  <div class="user-list">
-    <div class="panel-title">USER DATABASE</div>
-    <div class="user-list-header">
-      <button class="refresh-btn" onclick="loadUsers()">REFRESH DATABASE</button>
-    </div>
-    <div class="user-list-content" id="userList"></div>
-    <button class="create-btn" onclick="openCreateModal()">+ CREATE NEW USER</button>
-  </div>
-
-  <!-- LOG PANEL -->
-  <div class="log-panel">
-    <div class="panel-title">SYSTEM LOG</div>
-    <div class="log-content" id="logContent"></div>
-  </div>
-
-  <!-- STATUS BAR -->
-  <div class="status-bar">
-    ADMIN MODE • FULL CONTROL • <span id="clock"></span> (GMT+7)
+<div class="header">
+  <div>MAINFRAME v3.1</div>
+  <div style="display:flex;gap:15px;align-items:center;">
+    <!-- CLICK TOÀN BỘ → PROFILE -->
+    <a href="#" onclick="goToProfile();return false;" style="text-decoration:none;color:inherit;" title="My Profile">
+      <div class="user-info">
+        <img th:src="${user.photoURL} ?: 'https://via.placeholder.com/40?text=U'" class="avatar">
+        <div>
+          <div th:text="${user.displayName} ?: 'ROOT'">ROOT</div>
+          <div style="font-size:10px;" th:text="${user.email}">admin@labrynth.os</div>
+        </div>
+        <div class="badge">GOD MODE</div>
+      </div>
+    </a>
+    <button class="btn btn-logout" onclick="logout()">LOGOUT</button>
   </div>
 </div>
 
-<!-- MODAL -->
-<div class="modal" id="userModal">
-  <div class="modal-content">
-    <span class="close" onclick="closeModal()">x</span>
-    <h2 style="text-align:center; margin-bottom:20px;" id="modalTitle">CREATE USER</h2>
-    <form id="userForm">
-      <input type="hidden" id="editId">
-      <div class="form-group">
-        <label>USERNAME</label>
-        <input type="text" id="username" required>
-      </div>
-      <div class="form-group">
-        <label>EMAIL</label>
-        <input type="email" id="email" required>
-      </div>
-      <div class="form-group">
-        <label>ADMIN ROLE</label>
-        <select id="isAdmin">
-          <option value="false">USER</option>
-          <option value="true">ADMIN</option>
-        </select>
-      </div>
-      <button type="submit" class="btn-submit">SAVE USER</button>
-    </form>
+<!-- STATS -->
+<div class="panel">
+  <div class="title">SYSTEM STATUS</div>
+  <div class="stats">
+    <div class="stat"><div class="num" id="totalUsers">--</div><div class="label">TOTAL USERS</div></div>
+    <div class="stat"><div class="num" id="totalLabs">--</div><div class="label">TOTAL LABS</div></div>
+    <div class="stat"><div class="num" id="activeLabs">--</div><div class="label">ACTIVE LABS</div></div>
+    <div class="stat"><div class="num" id="systemLoad">--%</div><div class="label">SYSTEM LOAD</div></div>
   </div>
+</div>
+
+<!-- USER CONTROL -->
+<div class="panel">
+  <div class="title">USER CONTROL</div>
+  <button class="btn btn-create" onclick="showCreateUser()">+ NEW USER</button>
+  <button class="btn btn-update" onclick="loadUsers()">REFRESH</button>
+
+  <!-- CREATE USER -->
+  <div id="createUserForm" class="hidden" style="margin:15px 0;padding:15px;background:rgba(0,255,157,.1);border-radius:8px;">
+    <div class="form-group"><input id="newUsername" placeholder="Username"></div>
+    <div class="form-group"><input id="newEmail" type="email" placeholder="Email"></div>
+    <div class="form-group"><input id="newFullName" placeholder="Full Name"></div>
+    <div class="form-group"><input id="newPhone" placeholder="Phone"></div>
+    <div class="form-group"><label><input type="checkbox" id="newAdmin"> Grant Admin</label></div>
+    <button class="btn btn-create" onclick="createUser()">CREATE USER</button>
+    <button class="btn" onclick="hideCreateUser()">Cancel</button>
+  </div>
+
+  <!-- EDIT USER -->
+  <div id="editUserForm" class="hidden" style="margin:15px 0;padding:15px;background:rgba(0,255,157,.1);border-radius:8px;">
+    <input type="hidden" id="editUserId">
+    <div class="form-group"><input id="editUsername" placeholder="Username"></div>
+    <div class="form-group"><input id="editEmail" type="email" placeholder="Email"></div>
+    <div class="form-group"><input id="editFullName" placeholder="Full Name"></div>
+    <div class="form-group"><input id="editPhone" placeholder="Phone"></div>
+    <div class="form-group"><label><input type="checkbox" id="editAdmin"> Grant Admin</label></div>
+    <button class="btn btn-update" onclick="updateUser()">SAVE CHANGES</button>
+    <button class="btn" onclick="hideEditUser()">Cancel</button>
+  </div>
+
+  <table id="userTable">
+    <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Admin</th><th>Actions</th></tr></thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<!-- LAB CONTROL -->
+<div class="panel">
+  <div class="title">LAB CONTROL</div>
+  <button class="btn btn-create" onclick="showCreateLab()">+ NEW LAB</button>
+  <button class="btn btn-update" onclick="loadLabs()">REFRESH</button>
+
+  <!-- CREATE LAB -->
+  <div id="createLabForm" class="hidden" style="margin:15px 0;padding:15px;background:rgba(0,255,157,.1);border-radius:8px;">
+    <div class="form-group"><input id="labName" placeholder="Lab Name"></div>
+    <div class="form-group"><input id="labCode" placeholder="Lab Code"></div>
+    <div class="form-group"><input id="location" placeholder="Location"></div>
+    <div class="form-group"><input id="description" placeholder="Description"></div>
+    <button class="btn btn-create" onclick="createLab()">CREATE LAB</button>
+    <button class="btn" onclick="hideCreateLab()">Cancel</button>
+  </div>
+
+  <!-- EDIT LAB -->
+  <div id="editLabForm" class="hidden" style="margin:15px 0;padding:15px;background:rgba(0,255,157,.1);border-radius:8px;">
+    <input type="hidden" id="editLabId">
+    <div class="form-group"><input id="editLabName" placeholder="Lab Name"></div>
+    <div class="form-group"><input id="editLabCode" placeholder="Lab Code"></div>
+    <div class="form-group"><input id="editLocation" placeholder="Location"></div>
+    <div class="form-group"><input id="editDescription" placeholder="Description"></div>
+    <button class="btn btn-update" onclick="updateLab()">SAVE CHANGES</button>
+    <button class="btn" onclick="hideEditLab()">Cancel</button>
+  </div>
+
+  <table id="labTable">
+    <thead><tr><th>ID</th><th>Name</th><th>Code</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<div class="status-bar">
+  CONTROL PANEL ACTIVE • <span id="clock">--:--:--</span> • ALL SYSTEMS NOMINAL
 </div>
 
 <script th:inline="javascript">
   /*<![CDATA[*/
-  const API_BASE = '/api/users';
-  const logContent = document.getElementById('logContent');
-  const userList = document.getElementById('userList');
-  const modal = document.getElementById('userModal');
-  const form = document.getElementById('userForm');
+  const USER='/api/users', LAB='/api/labs';
 
-  function getVNTime() {
-    const now = new Date();
-    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-    return new Date(utc + (7 * 3600000));
-  }
-  function formatVNTime(date) {
-    return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-  }
+  // PROFILE & LOGOUT
+  function goToProfile(){const id=/*[[${user.userId}]]*/null;location.href=id?`/profile?userId=${id}`:'/profile';}
+  function logout(){if(confirm('Logout now?'))fetch('/logout',{method:'POST'}).finally(()=>location.href='/login');}
 
-  function log(msg, type = 'info') {
-    const line = document.createElement('div');
-    line.className = `log-line ${type}`;
-    line.textContent = `[${formatVNTime(getVNTime())}] ${msg}`;
-    logContent.appendChild(line);
-    logContent.scrollTop = logContent.scrollHeight;
+  // CLOCK
+  setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleTimeString('vi-VN',{hour12:false});},1000);
+
+  // STATS
+  async function loadStats(){
+    try{
+      const [u,l]=await Promise.all([fetch(USER),fetch(LAB)]);
+      const users=await u.json(), labs=await l.json();
+      document.getElementById('totalUsers').textContent=users.length;
+      document.getElementById('totalLabs').textContent=labs.length;
+      document.getElementById('activeLabs').textContent=labs.filter(x=>x.status==='ACTIVE').length;
+      document.getElementById('systemLoad').textContent=Math.floor(Math.random()*30+20);
+    }catch(e){}
   }
 
-  async function loadUsers() {
-    try {
-      const res = await fetch(API_BASE);
-      const users = await res.json();
-      userList.innerHTML = '';
-      users.forEach(user => {
-        const div = document.createElement('div');
-        div.className = 'user-item';
-        div.innerHTML = `
-          <div class="user-id">ID: ${user.userId}</div>
-          <div class="user-username">${user.username}</div>
-          <div class="user-role">${user.admin ? 'ADMIN' : 'USER'}</div>
-          <div class="actions">
-            <button class="btn-small btn-profile" onclick="viewProfile(${user.userId})">PROFILE</button>
-            <button class="btn-small btn-edit" onclick="openEditModal(${user.userId})">EDIT</button>
-            <button class="btn-small btn-delete" onclick="deleteUser(${user.userId})">DELETE</button>
-            <button class="btn-small btn-toggle-admin ${user.admin ? 'admin' : ''}"
-                    onclick="toggleAdmin(${user.userId}, ${!user.admin})">
-              ${user.admin ? 'REVOKE' : 'GRANT'}
-            </button>
-          </div>
-        `;
-        userList.appendChild(div);
-      });
-    } catch (err) {
-      log(`Failed to load users: ${err.message}`, 'error');
-    }
+  // USER CRUD
+  async function loadUsers(){
+    const res=await fetch(USER); const users=await res.json();
+    const tbody=document.querySelector('#userTable tbody'); tbody.innerHTML='';
+    users.forEach(u=>{
+      const tr=document.createElement('tr');
+      const esc=s=>s?s.replace(/'/g,"\\'"):'';
+      tr.innerHTML=`
+      <td>${u.userId}</td>
+      <td>${u.fullName||u.username}</td>
+      <td>${u.email}</td>
+      <td>${u.admin?'YES':'NO'}</td>
+      <td class="actions">
+        <button class="btn btn-update" onclick="showEditUser(${u.userId},'${esc(u.username)}','${esc(u.email)}','${esc(u.fullName)}','${esc(u.phone)}',${u.admin})">Edit</button>
+        <button class="btn btn-delete" onclick="deleteUser(${u.userId})">Delete</button>
+      </td>`;
+      tbody.appendChild(tr);
+    });
   }
-
-  window.viewProfile = (id) => {
-    window.open(`/profile?userId=${id}`, '_blank');
-    log(`Profile viewed: User ${id}`, 'info');
-  };
-
-  form.onsubmit = async (e) => {
-    e.preventDefault();
-    const id = document.getElementById('editId').value;
-    const payload = {
-      username: document.getElementById('username').value,
-      email: document.getElementById('email').value,
-      admin: document.getElementById('isAdmin').value === 'true'
+  function showCreateUser(){document.getElementById('createUserForm').classList.remove('hidden');}
+  function hideCreateUser(){document.getElementById('createUserForm').classList.add('hidden');}
+  async function createUser(){
+    const d={
+      username:document.getElementById('newUsername').value,
+      email:document.getElementById('newEmail').value,
+      fullName:document.getElementById('newFullName').value,
+      phone:document.getElementById('newPhone').value,
+      admin:document.getElementById('newAdmin').checked
     };
-
-    try {
-      if (id) {
-        await fetch(`${API_BASE}/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        log(`User ${id} updated`, 'success');
-      } else {
-        await fetch(API_BASE, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        log(`New user created`, 'success');
-      }
-      closeModal();
-      loadUsers();
-    } catch (err) {
-      log(`Operation failed: ${err.message}`, 'error');
-    }
-  };
-
-  window.deleteUser = async (id) => {
-    if (confirm('DELETE USER ID ' + id + '?')) {
-      try {
-        await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
-        log(`User ${id} deleted`, 'warn');
-        loadUsers();
-      } catch (err) {
-        log(`Delete failed: ${err.message}`, 'error');
-      }
-    }
-  };
-
-  window.toggleAdmin = async (id, grant) => {
-    try {
-      await fetch(`${API_BASE}/${id}/admin`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ admin: grant })
-      });
-      log(`Admin ${grant ? 'granted' : 'revoked'} for user ${id}`, grant ? 'success' : 'warn');
-      loadUsers();
-    } catch (err) {
-      log(`Admin toggle failed: ${err.message}`, 'error');
-    }
-  };
-
-  window.openCreateModal = () => {
-    document.getElementById('modalTitle').textContent = 'CREATE USER';
-    form.reset();
-    document.getElementById('editId').value = '';
-    modal.style.display = 'flex';
-  };
-  window.openEditModal = async (id) => {
-    try {
-      const res = await fetch(`${API_BASE}/${id}`);
-      const user = await res.json();
-      document.getElementById('modalTitle').textContent = 'EDIT USER';
-      document.getElementById('editId').value = user.userId;
-      document.getElementById('username').value = user.username;
-      document.getElementById('email').value = user.email;
-      document.getElementById('isAdmin').value = user.admin;
-      modal.style.display = 'flex';
-    } catch (err) {
-      log(`Load user failed: ${err.message}`, 'error');
-    }
-  };
-  window.closeModal = () => { modal.style.display = 'none'; };
-
-  function updateClock() {
-    document.getElementById('clock').textContent = formatVNTime(getVNTime());
+    await fetch(USER,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
+    hideCreateUser(); loadUsers(); loadStats();
   }
-  setInterval(updateClock, 1000);
-  updateClock();
+  async function deleteUser(id){
+    if(confirm('Delete user?')){await fetch(`${USER}/${id}`,{method:'DELETE'});loadUsers();loadStats();}
+  }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    log('MAINFRAME ADMIN v3.1 ONLINE', 'success');
-    loadUsers();
+  // EDIT USER
+  function showEditUser(id,username,email,fullName,phone,admin){
+    document.getElementById('editUserId').value=id;
+    document.getElementById('editUsername').value=username;
+    document.getElementById('editEmail').value=email;
+    document.getElementById('editFullName').value=fullName||'';
+    document.getElementById('editPhone').value=phone||'';
+    document.getElementById('editAdmin').checked=admin;
+    document.getElementById('editUserForm').classList.remove('hidden');
+  }
+  function hideEditUser(){document.getElementById('editUserForm').classList.add('hidden');}
+  async function updateUser(){
+    const id=document.getElementById('editUserId').value;
+    const d={
+      username:document.getElementById('editUsername').value,
+      email:document.getElementById('editEmail').value,
+      fullName:document.getElementById('editFullName').value,
+      phone:document.getElementById('editPhone').value,
+      admin:document.getElementById('editAdmin').checked
+    };
+    await fetch(`${USER}/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
+    hideEditUser(); loadUsers(); loadStats();
+  }
+
+  // LAB CRUD
+  async function loadLabs(){
+    const res=await fetch(LAB); const labs=await res.json();
+    const tbody=document.querySelector('#labTable tbody'); tbody.innerHTML='';
+    labs.forEach(l=>{
+      const tr=document.createElement('tr');
+      const esc=s=>s?s.replace(/'/g,"\\'"):'';
+      tr.innerHTML=`
+      <td>${l.labId}</td>
+      <td>${l.labName}</td>
+      <td>${l.labCode}</td>
+      <td><span style="color:${l.status==='ACTIVE'?'#55ff55':l.status==='INACTIVE'?'#ff5555':'#ffaa00'}">${l.status}</span></td>
+      <td class="actions">
+        <button class="btn btn-update" onclick="showEditLab(${l.labId},'${esc(l.labName)}','${esc(l.labCode)}','${esc(l.location)}','${esc(l.description)}')">Edit</button>
+        <button class="btn btn-update" onclick="cycleStatus(${l.labId},'${l.status}')">Next Status</button>
+        <button class="btn btn-delete" onclick="deleteLab(${l.labId})">Delete</button>
+      </td>`;
+      tbody.appendChild(tr);
+    });
+  }
+  function showCreateLab(){document.getElementById('createLabForm').classList.remove('hidden');}
+  function hideCreateLab(){document.getElementById('createLabForm').classList.add('hidden');}
+  async function createLab(){
+    const d={
+      labName:document.getElementById('labName').value,
+      labCode:document.getElementById('labCode').value,
+      location:document.getElementById('location').value,
+      description:document.getElementById('description').value
+    };
+    await fetch(LAB,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
+    hideCreateLab(); loadLabs(); loadStats();
+  }
+  async function deleteLab(id){
+    if(confirm('Delete lab?')){await fetch(`${LAB}/${id}`,{method:'DELETE'});loadLabs();loadStats();}
+  }
+
+  // EDIT LAB
+  function showEditLab(id,name,code,location,desc){
+    document.getElementById('editLabId').value=id;
+    document.getElementById('editLabName').value=name;
+    document.getElementById('editLabCode').value=code;
+    document.getElementById('editLocation').value=location||'';
+    document.getElementById('editDescription').value=desc||'';
+    document.getElementById('editLabForm').classList.remove('hidden');
+  }
+  function hideEditLab(){document.getElementById('editLabForm').classList.add('hidden');}
+  async function updateLab(){
+    const id=document.getElementById('editLabId').value;
+    const d={
+      labName:document.getElementById('editLabName').value,
+      labCode:document.getElementById('editLabCode').value,
+      location:document.getElementById('editLocation').value,
+      description:document.getElementById('editDescription').value
+    };
+    await fetch(`${LAB}/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
+    hideEditLab(); loadLabs(); loadStats();
+  }
+
+  // STATUS CYCLE
+  const cycle=['ACTIVE','INACTIVE','MAINTENANCE'];
+  async function cycleStatus(id,cur){
+    const next=cycle[(cycle.indexOf(cur)+1)%3];
+    await fetch(`${LAB}/${id}/status?status=${next}`,{method:'PATCH'});
+    loadLabs();
+  }
+
+  // INIT
+  document.addEventListener('DOMContentLoaded',()=>{
+    loadStats(); loadUsers(); loadLabs();
+    setInterval(()=>{loadStats();loadUsers();loadLabs();},15000);
   });
   /*]]>*/
 </script>

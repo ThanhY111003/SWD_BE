@@ -22,6 +22,6 @@ public class Room {
     private String roomName;
     private String roomCode;
     private Integer capacity;
-    private String status;
+    private String status; // "ACTIVE", "IN_USE", "MAINTENANCE", ...
 }
 

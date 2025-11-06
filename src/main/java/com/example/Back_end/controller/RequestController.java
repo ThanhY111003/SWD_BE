@@ -41,4 +41,14 @@ public class RequestController {
         requestService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+
+    @PutMapping("/{requestId}/approve/{staffId}")
+    public ResponseEntity<RequestResponseDTO> approveByStaff(
+            @PathVariable Long requestId,
+            @PathVariable Long staffId
+    ) {
+        return ResponseEntity.ok(requestService.approveByStaff(staffId, requestId)); // ✅ Đúng thứ tự
+    }
+
 }

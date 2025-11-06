@@ -11,13 +11,11 @@ import java.util.Optional;
 
 @Repository
 public interface StaffRepository extends JpaRepository<Staff, Long> {
-    // Lấy danh sách staff theo labId
-    @Query("SELECT s FROM Staff s JOIN s.labs l WHERE l.labId = :labId")
-    List<Staff> findByLabId(@Param("labId") Long labId);
+    // ✅ Lấy danh sách staff theo labId
+    List<Staff> findByLabs_LabId(Long labId);
 
-    // Lấy staff đầu tiên theo labId
-    @Query("SELECT s FROM Staff s JOIN s.labs l WHERE l.labId = :labId")
-    Optional<Staff> findFirstByLabId(@Param("labId") Long labId);
+    // ✅ Lấy staff đầu tiên theo labId (chuẩn JPA)
+    Optional<Staff> findFirstByLabs_LabId(Long labId);
 
     boolean existsByUser_UserId(Long userId);
 

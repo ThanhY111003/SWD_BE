@@ -91,8 +91,239 @@ PUT /api/rooms/2
   "status": "MAINTENANCE"
 }
 
+[
+  {
+    "labId": 1,
+    "roomName": "Phòng Thực hành 101",
+    "roomCode": "R101",
+    "capacity": 40,
+    "status": "ACTIVE"
+  },
+  {
+    "labId": 1,
+    "roomName": "Phòng Thực hành 102",
+    "roomCode": "R102",
+    "capacity": 25,
+    "status": "ACTIVE"
+  },
+  {
+    "labId": 1,
+    "roomName": "Phòng Họp 103",
+    "roomCode": "R103",
+    "capacity": 15,
+    "status": "ACTIVE"
+  },
+
+  {
+    "labId": 2,
+    "roomName": "Phòng Thí nghiệm 201",
+    "roomCode": "R201",
+    "capacity": 30,
+    "status": "ACTIVE"
+  },
+  {
+    "labId": 2,
+    "roomName": "Phòng Thí nghiệm 202",
+    "roomCode": "R202",
+    "capacity": 20,
+    "status": "ACTIVE"
+  },
+  {
+    "labId": 2,
+    "roomName": "Phòng Họp 203",
+    "roomCode": "R203",
+    "capacity": 12,
+    "status": "ACTIVE"
+  },
+
+  {
+    "labId": 3,
+    "roomName": "Phòng Bảo mật 301",
+    "roomCode": "R301",
+    "capacity": 25,
+    "status": "ACTIVE"
+  },
+  {
+    "labId": 3,
+    "roomName": "Phòng Kiểm thử 302",
+    "roomCode": "R302",
+    "capacity": 18,
+    "status": "ACTIVE"
+  },
+  {
+    "labId": 3,
+    "roomName": "Phòng Phân tích 303",
+    "roomCode": "R303",
+    "capacity": 10,
+    "status": "ACTIVE"
+  },
+
+  {
+    "labId": 4,
+    "roomName": "Phòng Năng lượng 401",
+    "roomCode": "R401",
+    "capacity": 35,
+    "status": "ACTIVE"
+  },
+  {
+    "labId": 4,
+    "roomName": "Phòng Kỹ thuật 402",
+    "roomCode": "R402",
+    "capacity": 20,
+    "status": "ACTIVE"
+  },
+  {
+    "labId": 4,
+    "roomName": "Phòng Thảo luận 403",
+    "roomCode": "R403",
+    "capacity": 10,
+    "status": "ACTIVE"
+  },
+
+  {
+    "labId": 5,
+    "roomName": "Phòng Data 501",
+    "roomCode": "R501",
+    "capacity": 45,
+    "status": "ACTIVE"
+  },
+  {
+    "labId": 5,
+    "roomName": "Phòng Máy chủ 502",
+    "roomCode": "R502",
+    "capacity": 20,
+    "status": "ACTIVE"
+  },
+  {
+    "labId": 5,
+    "roomName": "Phòng Họp 503",
+    "roomCode": "R503",
+    "capacity": 12,
+    "status": "ACTIVE"
+  },
+
+  {
+    "labId": 6,
+    "roomName": "Phòng UX 601",
+    "roomCode": "R601",
+    "capacity": 20,
+    "status": "ACTIVE"
+  },
+  {
+    "labId": 6,
+    "roomName": "Phòng AR/VR 602",
+    "roomCode": "R602",
+    "capacity": 10,
+    "status": "ACTIVE"
+  },
+  {
+    "labId": 6,
+    "roomName": "Phòng Test UI 603",
+    "roomCode": "R603",
+    "capacity": 8,
+    "status": "ACTIVE"
+  },
+
+  {
+    "labId": 7,
+    "roomName": "Phòng Quantum 701",
+    "roomCode": "R701",
+    "capacity": 15,
+    "status": "ACTIVE"
+  },
+  {
+    "labId": 7,
+    "roomName": "Phòng Mạch Qubit 702",
+    "roomCode": "R702",
+    "capacity": 10,
+    "status": "ACTIVE"
+  },
+  {
+    "labId": 7,
+    "roomName": "Phòng Nghiên cứu 703",
+    "roomCode": "R703",
+    "capacity": 6,
+    "status": "ACTIVE"
+  },
+
+  {
+    "labId": 8,
+    "roomName": "Phòng Robotics 801",
+    "roomCode": "R801",
+    "capacity": 30,
+    "status": "ACTIVE"
+  },
+  {
+    "labId": 8,
+    "roomName": "Phòng Cánh tay Robot 802",
+    "roomCode": "R802",
+    "capacity": 20,
+    "status": "ACTIVE"
+  },
+  {
+    "labId": 8,
+    "roomName": "Phòng Điều khiển 803",
+    "roomCode": "R803",
+    "capacity": 12,
+    "status": "ACTIVE"
+  },
+
+  {
+    "labId": 9,
+    "roomName": "Phòng Môi trường 901",
+    "roomCode": "R901",
+    "capacity": 20,
+    "status": "ACTIVE"
+  },
+  {
+    "labId": 9,
+    "roomName": "Phòng Cảm biến 902",
+    "roomCode": "R902",
+    "capacity": 12,
+    "status": "ACTIVE"
+  },
+  {
+    "labId": 9,
+    "roomName": "Phòng Phân tích 903",
+    "roomCode": "R903",
+    "capacity": 10,
+    "status": "ACTIVE"
+  },
+
+  {
+    "labId": 10,
+    "roomName": "Phòng Software 1001",
+    "roomCode": "R1001",
+    "capacity": 50,
+    "status": "ACTIVE"
+  },
+  {
+    "labId": 10,
+    "roomName": "Phòng DevOps 1002",
+    "roomCode": "R1002",
+    "capacity": 20,
+    "status": "ACTIVE"
+  },
+  {
+    "labId": 10,
+    "roomName": "Phòng QA 1003",
+    "roomCode": "R1003",
+    "capacity": 15,
+    "status": "ACTIVE"
+  }
+]
 
 -----------------------------------------------------------------------------------------------------------------------------------------
+{
+  "requestType": "BOOKING",
+  "memberId": 101,
+  "labId": 5,
+  "roomId": null,
+  "title": "Đặt phòng AI để huấn luyện mô hình",
+  "description": "Nhóm Machine Learning cần đặt phòng để chạy thử mô hình YOLOv8.",
+  "status": "PENDING",
+  "roomSlotIds": [12, 13, 14]
+}
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------

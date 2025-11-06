@@ -11,4 +11,5 @@ public interface RequestService {
     RequestResponseDTO create(RequestRequestDTO dto);
     RequestResponseDTO update(Long id, RequestRequestDTO dto);
     void delete(Long id);
+    public RequestResponseDTO approveByStaff(Long requestId, Long staffId);
 }
