@@ -25,4 +25,6 @@ public class UserResponseDTO {
     public boolean isAdmin() {
         return Boolean.TRUE.equals(admin);
     }
+
+    private String role;
 }

@@ -68,17 +68,38 @@ public class UserServiceImpl implements UserService {
     }
     @Override
     public UserResponseDTO getById(Long id) {
-        return userRepository.findById(id)
-                .map(user -> modelMapper.map(user, UserResponseDTO.class))
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        UserResponseDTO dto = modelMapper.map(user, UserResponseDTO.class);
+
+        // ✅ Xác định role dựa vào quan hệ
+        if (user.getStaff() != null) {
+            dto.setRole("STAFF");
+        } else if (user.getSupporter() != null) {
+            dto.setRole("SUPPORTER");
+        } else if (user.getMember() != null) {
+            dto.setRole("MEMBER");
+        } else {
+            dto.setRole("UNKNOWN");
+        }
+
+        return dto;
     }
     @Override
     public List<UserResponseDTO> getAll() {
-        return userRepository.findAll()
-                .stream()
-                .map(user -> modelMapper.map(user, UserResponseDTO.class))
+        return userRepository.findAll().stream()
+                .map(user -> {
+                    UserResponseDTO dto = modelMapper.map(user, UserResponseDTO.class);
+                    if (user.getStaff() != null) dto.setRole("STAFF");
+                    else if (user.getSupporter() != null) dto.setRole("SUPPORTER");
+                    else if (user.getMember() != null) dto.setRole("MEMBER");
+                    else dto.setRole("UNKNOWN");
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
+
     // === HÀM HỖ TRỢ: KIỂM TRA CHUỖI KHÔNG NULL & KHÔNG RỖNG ===
     private boolean isNotBlank(String str) {
         return str != null && !str.trim().isEmpty();
