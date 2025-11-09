@@ -128,5 +128,19 @@ public class LabServiceImpl implements LabService {
                 ") vào Lab: " + lab.getLabName() + " cho ngày " + dto.getBookingDate();
     }
 
+    @Override
+    public List<RoomSlot> getRoomSlotsByLabId(Long labId) {
+        Lab lab = labRepository.findById(labId)
+                .orElseThrow(() -> new RuntimeException("❌ Không tìm thấy Lab có ID: " + labId));
+
+        List<RoomSlot> roomSlots = lab.getRoomSlots();
+
+        if (roomSlots == null || roomSlots.isEmpty()) {
+            throw new RuntimeException("⚠️ Lab này hiện chưa có RoomSlot nào được gán.");
+        }
+
+        return roomSlots;
+    }
+
 
 }

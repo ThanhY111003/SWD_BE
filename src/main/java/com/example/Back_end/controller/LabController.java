@@ -3,6 +3,7 @@ package com.example.Back_end.controller;
 import com.example.Back_end.dto.LabAssignRoomSlotByDateDTO;
 import com.example.Back_end.dto.LabRequestDTO;
 import com.example.Back_end.dto.LabResponseDTO;
+import com.example.Back_end.entity.RoomSlot;
 import com.example.Back_end.enums.LabStatus;
 import com.example.Back_end.service.interf.LabService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -74,6 +75,12 @@ public class LabController {
     public ResponseEntity<String> assignRoomSlotsByDate(@RequestBody LabAssignRoomSlotByDateDTO dto) {
         String message = labService.assignRoomSlotsToLabByDate(dto);
         return ResponseEntity.ok(message);
+    }
+
+    @GetMapping("/{labId}/room-slots")
+    public ResponseEntity<List<RoomSlot>> getRoomSlotsByLab(@PathVariable Long labId) {
+        List<RoomSlot> roomSlots = labService.getRoomSlotsByLabId(labId);
+        return ResponseEntity.ok(roomSlots);
     }
 
 
