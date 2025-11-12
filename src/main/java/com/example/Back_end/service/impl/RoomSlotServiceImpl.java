@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,27 @@ import java.util.stream.Collectors;
 public class RoomSlotServiceImpl implements RoomSlotService {
 
     private final RoomSlotRepository roomSlotRepository;
+
+
+    @Override
+    public List<RoomSlotResponseDTO> getDistinctSlotTemplates() {
+        // Lấy tất cả slots (tận dụng hàm getAll có sẵn)
+        List<RoomSlotResponseDTO> allSlots = getAll();
+
+        // Gom nhóm theo slotName + startTime + endTime (loại bỏ trùng)
+        return allSlots.stream()
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toMap(
+                                s -> s.getSlotName() + s.getStartTime() + s.getEndTime(), // key duy nhất
+                                s -> s,
+                                (s1, s2) -> s1 // nếu trùng thì giữ cái đầu tiên
+                        ),
+                        map -> map.values().stream()
+                                .sorted(Comparator.comparing(RoomSlotResponseDTO::getStartTime))
+                                .toList()
+                ));
+    }
+
 
     @Override
     public List<RoomSlotResponseDTO> getAll() {

@@ -1,5 +1,6 @@
 package com.example.Back_end.controller;
 
+import com.example.Back_end.dto.RoomSlotResponseDTO;
 import com.example.Back_end.entity.RoomSlot;
 import com.example.Back_end.service.interf.RoomSlotService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,11 @@ import java.util.List;
 public class RoomSlotController {
 
     private final RoomSlotService roomSlotService;
+
+    @GetMapping("/templates")
+    public ResponseEntity<List<RoomSlotResponseDTO>> getDistinctSlotTemplates() {
+        return ResponseEntity.ok(roomSlotService.getDistinctSlotTemplates());
+    }
 
     @PostMapping("/generate/{year}")
     public ResponseEntity<String> generateRoomSlots(@PathVariable int year) {

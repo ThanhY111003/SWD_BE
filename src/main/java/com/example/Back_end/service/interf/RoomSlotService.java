@@ -8,6 +8,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface RoomSlotService {
+    List<RoomSlotResponseDTO> getDistinctSlotTemplates();
+
     List<RoomSlotResponseDTO> getAll();
 
     RoomSlotResponseDTO getById(Long id);
