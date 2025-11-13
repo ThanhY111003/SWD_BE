@@ -26,7 +26,7 @@ public class SecurityConfig {
                 .cors(cors -> {})             // ✅ bật CORS support
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/api/auth/**", "/users", "/api/users/**",
-                                "/api/labs/**", "/api/rooms/**", "/api/room-slots/**","/api/requests/**", // 👈 thêm dòng này
+                                "/api/labs/**", "/api/rooms/**", "/api/room-slots/**","/api/requests/**","/api/notifications/**", // 👈 thêm dòng này
                                 "/labs", "/dashboard", "/",
                                 "/css/**", "/js/**", "/images/**", "/swagger-ui/**","/v3/api-docs/**")
                         .permitAll()
