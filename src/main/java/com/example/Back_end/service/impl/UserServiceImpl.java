@@ -76,6 +76,7 @@ public class UserServiceImpl implements UserService {
         // ✅ Xác định role dựa vào quan hệ
         if (user.getStaff() != null) {
             dto.setRole("STAFF");
+            dto.setStaffId(user.getStaff().getStaffId());
         } else if (user.getSupporter() != null) {
             dto.setRole("SUPPORTER");
         } else if (user.getMember() != null) {

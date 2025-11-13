@@ -35,12 +35,12 @@
     "location": "Building F, Floor 1",
     "description": "Experimenting with UX/UI, AR/VR interfaces, and user experience testing"
   },
-  {
-    "labName": "Quantum Computing Lab",
-    "labCode": "QC-007",
-    "location": "Building G, Floor 2",
-    "description": "Exploring quantum algorithms and quantum circuit simulations"
-  },
+      {
+        "labName": "Quantum Computing Lab",
+        "labCode": "QC-007",
+        "location": "Building G, Floor 2",
+        "description": "Exploring quantum algorithms and quantum circuit simulations"
+      },
   {
     "labName": "Robotics and Automation Lab",
     "labCode": "ROB-008",

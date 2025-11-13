@@ -31,7 +31,7 @@ public class RequestController {
         return ResponseEntity.ok(requestService.create(dto));
     }
 
-    @PutMapping("/{id}")
+    
     public ResponseEntity<RequestResponseDTO> update(@PathVariable Long id, @RequestBody RequestRequestDTO dto) {
         return ResponseEntity.ok(requestService.update(id, dto));
     }
@@ -41,6 +41,7 @@ public class RequestController {
         requestService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
 
 
     @PutMapping("/{requestId}/approve/{staffId}")
