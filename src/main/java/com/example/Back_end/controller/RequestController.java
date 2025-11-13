@@ -52,4 +52,13 @@ public class RequestController {
         return ResponseEntity.ok(requestService.approveByStaff(staffId, requestId)); // ✅ Đúng thứ tự
     }
 
+    @PutMapping("/{requestId}/reject/user/{userId}")
+    public ResponseEntity<RequestResponseDTO> rejectByUser(
+            @PathVariable Long requestId,
+            @PathVariable Long userId
+    ) {
+        return ResponseEntity.ok(requestService.rejectByUser(userId, requestId));
+    }
+
+
 }

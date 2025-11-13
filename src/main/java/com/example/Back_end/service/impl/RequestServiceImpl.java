@@ -29,6 +29,8 @@ public class RequestServiceImpl implements RequestService {
     private final SupporterRepository supporterRepo;
     private final SupporterShiftRepository supporterShiftRepo;
     private final NotificationService notificationService;
+    private final UserRepository userRepo;
+
 
     // =======================================================================
     //                               CRUD
@@ -338,4 +340,107 @@ public class RequestServiceImpl implements RequestService {
 
         return dto;
     }
+
+
+    @Override
+    public RequestResponseDTO rejectByUser(Long userId, Long requestId) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Request request = requestRepo.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
+
+        // 🧩 Tự động xác định role
+        Staff staff = user.getStaff();
+        Member member = user.getMember();
+        Supporter supporter = user.getSupporter();
+
+        if (staff == null && member == null && supporter == null) {
+            throw new RuntimeException("User không thuộc loại staff/member/supporter nào");
+        }
+
+        // =====================================================
+        // ✅ Nếu là STAFF
+        // =====================================================
+        if (staff != null) {
+            // Kiểm tra quyền staff trong lab
+            boolean hasPermission = staff.getLabs().stream()
+                    .anyMatch(lab -> lab.getLabId().equals(request.getLab().getLabId()));
+            if (!hasPermission) {
+                throw new RuntimeException("Staff không có quyền từ chối request này");
+            }
+
+            request.setStatus(RequestStatus.REJECTED);
+            request.setApprovedAt(LocalDateTime.now());
+            request.setStaff(staff);
+
+            if (request.getRoom() != null) {
+                Room room = request.getRoom();
+                room.setStatus("ACTIVE");
+                roomRepo.save(room);
+                request.setRoom(null);
+            }
+
+            request.setSupporter(null);
+
+            notificationService.notifyMember(
+                    request.getMember(),
+                    "Yêu cầu bị từ chối",
+                    "Yêu cầu '" + request.getTitle() + "' đã bị từ chối bởi " + staff.getStaffCode()
+            );
+
+            return toResponse(requestRepo.save(request));
+        }
+
+        // =====================================================
+        // ✅ Nếu là MEMBER
+        // =====================================================
+        if (member != null) {
+            if (!request.getMember().getMemberId().equals(member.getMemberId())) {
+                throw new RuntimeException("Bạn không thể từ chối yêu cầu không thuộc về mình");
+            }
+
+            request.setStatus(RequestStatus.CANCELLED);
+            request.setCompletedAt(LocalDateTime.now());
+
+            if (request.getRoom() != null) {
+                Room room = request.getRoom();
+                room.setStatus("ACTIVE");
+                roomRepo.save(room);
+            }
+
+            notificationService.notifyStaff(
+                    request.getStaff(),
+                    "Yêu cầu bị hủy bởi thành viên",
+                    "Yêu cầu '" + request.getTitle() + "' đã bị hủy bởi " + member.getMemberCode()
+            );
+
+            return toResponse(requestRepo.save(request));
+        }
+
+        // =====================================================
+        // ✅ Nếu là SUPPORTER
+        // =====================================================
+        if (supporter != null) {
+            if (request.getSupporter() == null ||
+                    !request.getSupporter().getSupporterId().equals(supporter.getSupporterId())) {
+                throw new RuntimeException("Bạn không thể từ chối yêu cầu không được giao cho bạn");
+            }
+
+            request.setStatus(RequestStatus.REJECTED);
+            request.setCompletedAt(LocalDateTime.now());
+
+            notificationService.notifyStaff(
+                    request.getStaff(),
+                    "Yêu cầu bị supporter từ chối",
+                    "Supporter " + supporter.getSupporterCode() +
+                            " đã từ chối yêu cầu '" + request.getTitle() + "'"
+            );
+
+            return toResponse(requestRepo.save(request));
+        }
+
+        throw new RuntimeException("Không xác định được role của user");
+    }
+
 }

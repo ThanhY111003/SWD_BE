@@ -69,6 +69,13 @@
   "slotNames": ["Ca 1", "Ca 2", "Ca 3"]
 }
 
+
+{
+  "labId": 1,
+  "bookingDate": "2025-11-06",
+  "slotNames": ["Ca 1", "Ca 2", "Ca 3"]
+}
+
 -----------------------------------------------------------------------------------------------------------------------------------------
 
 POST /api/rooms
@@ -325,6 +332,17 @@ PUT /api/rooms/2
   "roomSlotIds": [12, 13, 14]
 }
 
+
+{
+  "requestType": "BOOKING",
+  "memberId": 1,
+  "labId": 1,
+  "roomId": null,
+  "title": "Đặt phòng AI để huấn luyện mô hình",
+  "description": "Nhóm Machine Learning cần đặt phòng để chạy thử mô hình YOLOv8.",
+  "status": "PENDING",
+  "roomSlotIds": [13, 14]
+}
 
 -----------------------------------------------------------------------------------------------------------------------------------------
 
