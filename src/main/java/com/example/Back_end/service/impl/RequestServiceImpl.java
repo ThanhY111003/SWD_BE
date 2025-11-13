@@ -26,11 +26,9 @@ public class RequestServiceImpl implements RequestService {
     private final LabRepository labRepo;
     private final RoomRepository roomRepo;
     private final RoomSlotRepository roomSlotRepo;
-    private final SupporterRepository supporterRepo;
     private final SupporterShiftRepository supporterShiftRepo;
     private final NotificationService notificationService;
     private final UserRepository userRepo;
-
 
     // =======================================================================
     //                               CRUD
@@ -60,7 +58,7 @@ public class RequestServiceImpl implements RequestService {
         request.setRequestedAt(LocalDateTime.now());
         request.setStatus(RequestStatus.PENDING);
 
-        // ✅ parse enum từ String
+        // ✅ Parse enum from string
         try {
             request.setRequestType(RequestTypeEnum.valueOf(dto.getRequestType().toUpperCase()));
         } catch (IllegalArgumentException e) {
@@ -81,7 +79,6 @@ public class RequestServiceImpl implements RequestService {
                             .orElseThrow(() -> new RuntimeException("RoomSlot not found")))
                     .collect(Collectors.toList()));
 
-            // Gán staff phụ trách lab (nếu có)
             Staff staff = staffRepo.findFirstByLabs_LabId(request.getLab().getLabId()).orElse(null);
             if (staff != null) {
                 request.setStaff(staff);
@@ -103,13 +100,13 @@ public class RequestServiceImpl implements RequestService {
             }
         }
 
-        // ✅ Gửi thông báo cho staff trong lab
+        // ✅ Notify staff
         Staff notifyStaff = staffRepo.findFirstByLabs_LabId(request.getLab().getLabId()).orElse(null);
         if (notifyStaff != null) {
             notificationService.notifyStaff(
                     notifyStaff,
-                    "Yêu cầu mới từ " + request.getMember().getMemberCode(),
-                    "Loại yêu cầu: " + request.getRequestType() + " - " + request.getTitle()
+                    "New Request from " + request.getMember().getMemberCode(),
+                    "Request Type: " + request.getRequestType() + " - " + request.getTitle()
             );
         }
 
@@ -135,24 +132,21 @@ public class RequestServiceImpl implements RequestService {
                     Room room = roomRepo.findById(dto.getRoomId())
                             .orElseThrow(() -> new RuntimeException("Room not found"));
 
-                    // ✅ Chặn nếu phòng đang sử dụng
                     if ("IN_USE".equalsIgnoreCase(room.getStatus())) {
-                        throw new RuntimeException("Phòng này đang được sử dụng, không thể duyệt thêm yêu cầu mới!");
+                        throw new RuntimeException("This room is currently in use. Cannot approve another request!");
                     }
 
-                    // ✅ Kiểm tra supporter trực
                     if (dto.getRoomSlotIds() != null && !dto.getRoomSlotIds().isEmpty()) {
                         RoomSlot rs = roomSlotRepo.findById(dto.getRoomSlotIds().get(0))
                                 .orElseThrow(() -> new RuntimeException("RoomSlot not found"));
 
                         Supporter supporter = findAvailableSupporterForRoomSlot(rs);
                         if (supporter == null) {
-                            throw new RuntimeException("Không có supporter trực trong ca này — không thể duyệt yêu cầu!");
+                            throw new RuntimeException("No supporter available for this slot — approval failed!");
                         }
                         request.setSupporter(supporter);
                     }
 
-                    // ✅ Đánh dấu phòng đang dùng
                     room.setStatus("IN_USE");
                     roomRepo.save(room);
 
@@ -183,7 +177,7 @@ public class RequestServiceImpl implements RequestService {
         else if (newStatus == RequestStatus.REJECTED) {
             if (request.getRoom() != null) {
                 Room room = request.getRoom();
-                room.setStatus("ACTIVE"); // ✅ Trả lại phòng
+                room.setStatus("ACTIVE"); // ✅ Release room
                 roomRepo.save(room);
             }
             request.setRoom(null);
@@ -198,14 +192,13 @@ public class RequestServiceImpl implements RequestService {
 
             if (request.getRoom() != null) {
                 Room room = request.getRoom();
-                room.setStatus("ACTIVE"); // ✅ Hoàn thành thì phòng rảnh
+                room.setStatus("ACTIVE");
                 roomRepo.save(room);
             }
         }
 
         return toResponse(requestRepo.save(request));
     }
-
 
     @Override
     public void delete(Long id) {
@@ -220,58 +213,49 @@ public class RequestServiceImpl implements RequestService {
         Request request = requestRepo.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
 
-
         Staff staff = staffRepo.findById(staffId)
                 .orElseThrow(() -> new RuntimeException("Staff not found"));
 
-        // ✅ Kiểm tra quyền: staff phải thuộc lab của request
         boolean hasPermission = staff.getLabs().stream()
                 .anyMatch(lab -> lab.getLabId().equals(request.getLab().getLabId()));
         if (!hasPermission) {
-            throw new RuntimeException("Staff không có quyền duyệt request này");
+            throw new RuntimeException("Staff does not have permission to approve this request");
         }
 
-        // ✅ Chỉ xử lý BOOKING
         if (request.getRequestType() != RequestTypeEnum.BOOKING) {
-            throw new RuntimeException("Chỉ có thể duyệt request loại BOOKING");
+            throw new RuntimeException("Only BOOKING type requests can be approved");
         }
 
-        // ✅ Cập nhật trạng thái
         request.setStatus(RequestStatus.APPROVED);
         request.setApprovedAt(LocalDateTime.now());
         request.setStaff(staff);
 
-        // ✅ Gán phòng ACTIVE trong lab
         Room activeRoom = roomRepo.findFirstByLabAndStatus(request.getLab(), "ACTIVE")
-                .orElseThrow(() -> new RuntimeException("Không có phòng ACTIVE trong lab"));
+                .orElseThrow(() -> new RuntimeException("No ACTIVE room available in the lab"));
 
         activeRoom.setStatus("IN_USE");
         roomRepo.save(activeRoom);
 
         request.setRoom(activeRoom);
 
-        // ✅ Tìm supporter phù hợp với thời gian booking
         Supporter supporter = findAvailableSupporterForRequest(request);
         if (supporter == null) {
-            throw new RuntimeException("Không có supporter trực trong ca này — không thể duyệt yêu cầu!");
+            throw new RuntimeException("No supporter available for this shift — approval failed!");
         }
 
         request.setSupporter(supporter);
 
-        // ✅ Gửi thông báo cho supporter
         notificationService.notifySupporter(
                 supporter,
-                "Yêu cầu mở cửa phòng",
-                "Có yêu cầu được duyệt tại " + activeRoom.getRoomName() +
+                "Room access request",
+                "A request has been approved for room " + activeRoom.getRoomName() +
                         " (" + request.getTitle() + ")"
         );
 
-
-        // ✅ Gửi thông báo cho member
         notificationService.notifyMember(
                 request.getMember(),
-                "Yêu cầu của bạn đã được duyệt",
-                "Yêu cầu '" + request.getTitle() + "' đã được duyệt. Phòng: " + activeRoom.getRoomName()
+                "Your request has been approved",
+                "Request '" + request.getTitle() + "' has been approved. Room: " + activeRoom.getRoomName()
         );
 
         return toResponse(requestRepo.save(request));
@@ -341,7 +325,6 @@ public class RequestServiceImpl implements RequestService {
         return dto;
     }
 
-
     @Override
     public RequestResponseDTO rejectByUser(Long userId, Long requestId) {
         User user = userRepo.findById(userId)
@@ -350,24 +333,20 @@ public class RequestServiceImpl implements RequestService {
         Request request = requestRepo.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
 
-        // 🧩 Tự động xác định role
         Staff staff = user.getStaff();
         Member member = user.getMember();
         Supporter supporter = user.getSupporter();
 
         if (staff == null && member == null && supporter == null) {
-            throw new RuntimeException("User không thuộc loại staff/member/supporter nào");
+            throw new RuntimeException("User does not belong to any role: staff/member/supporter");
         }
 
-        // =====================================================
-        // ✅ Nếu là STAFF
-        // =====================================================
+        // ✅ STAFF
         if (staff != null) {
-            // Kiểm tra quyền staff trong lab
             boolean hasPermission = staff.getLabs().stream()
                     .anyMatch(lab -> lab.getLabId().equals(request.getLab().getLabId()));
             if (!hasPermission) {
-                throw new RuntimeException("Staff không có quyền từ chối request này");
+                throw new RuntimeException("Staff has no permission to reject this request");
             }
 
             request.setStatus(RequestStatus.REJECTED);
@@ -385,19 +364,17 @@ public class RequestServiceImpl implements RequestService {
 
             notificationService.notifyMember(
                     request.getMember(),
-                    "Yêu cầu bị từ chối",
-                    "Yêu cầu '" + request.getTitle() + "' đã bị từ chối bởi " + staff.getStaffCode()
+                    "Request rejected",
+                    "Your request '" + request.getTitle() + "' was rejected by " + staff.getStaffCode()
             );
 
             return toResponse(requestRepo.save(request));
         }
 
-        // =====================================================
-        // ✅ Nếu là MEMBER
-        // =====================================================
+        // ✅ MEMBER
         if (member != null) {
             if (!request.getMember().getMemberId().equals(member.getMemberId())) {
-                throw new RuntimeException("Bạn không thể từ chối yêu cầu không thuộc về mình");
+                throw new RuntimeException("You cannot cancel a request that does not belong to you");
             }
 
             request.setStatus(RequestStatus.CANCELLED);
@@ -411,20 +388,18 @@ public class RequestServiceImpl implements RequestService {
 
             notificationService.notifyStaff(
                     request.getStaff(),
-                    "Yêu cầu bị hủy bởi thành viên",
-                    "Yêu cầu '" + request.getTitle() + "' đã bị hủy bởi " + member.getMemberCode()
+                    "Request cancelled by member",
+                    "Request '" + request.getTitle() + "' was cancelled by " + member.getMemberCode()
             );
 
             return toResponse(requestRepo.save(request));
         }
 
-        // =====================================================
-        // ✅ Nếu là SUPPORTER
-        // =====================================================
+        // ✅ SUPPORTER
         if (supporter != null) {
             if (request.getSupporter() == null ||
                     !request.getSupporter().getSupporterId().equals(supporter.getSupporterId())) {
-                throw new RuntimeException("Bạn không thể từ chối yêu cầu không được giao cho bạn");
+                throw new RuntimeException("You cannot reject a request not assigned to you");
             }
 
             request.setStatus(RequestStatus.REJECTED);
@@ -432,15 +407,14 @@ public class RequestServiceImpl implements RequestService {
 
             notificationService.notifyStaff(
                     request.getStaff(),
-                    "Yêu cầu bị supporter từ chối",
+                    "Request rejected by supporter",
                     "Supporter " + supporter.getSupporterCode() +
-                            " đã từ chối yêu cầu '" + request.getTitle() + "'"
+                            " has rejected request '" + request.getTitle() + "'"
             );
 
             return toResponse(requestRepo.save(request));
         }
 
-        throw new RuntimeException("Không xác định được role của user");
+        throw new RuntimeException("Unable to determine user role");
     }
-
 }
